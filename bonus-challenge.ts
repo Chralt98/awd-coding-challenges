@@ -28,6 +28,7 @@ The Loop: The program should calculate the next generation based on the current 
 const ROWS: number = 50;
 const COLUMNS: number = 50;
 const DELAY_MS: number = 100;
+const ALIVE_CELL_PROBABILITY: number = 0.1;
 
 enum State {
   "alive",
@@ -39,26 +40,31 @@ async function delay(ms: number): Promise<void> {
 }
 
 class GameOfLife {
-  canvas: Cell[][];
+  private grid: Cell[][];
 
   constructor() {
-    for (let y = 0; y < COLUMNS; y++) {
-      for (let x = 0; x < ROWS; x++) {
+    this.grid = [];
+    for (let c = 0; c < COLUMNS; c++) {
+      const column: Cell[] = [];
+      this.grid[c] = column;
+      for (let r = 0; r < ROWS; r++) {
         const randomNumber = Math.random();
-        this.canvas[x][y] = new Cell(
-          randomNumber === 1 ? State.alive : State.dead,
+        column[r] = new Cell(
+          randomNumber < ALIVE_CELL_PROBABILITY ? State.alive : State.dead,
         );
       }
     }
   }
 
   render() {
-    while (true) {
-      for (let y = 0; y < COLUMNS; y++) {
-        for (let x = 0; x < ROWS; x++) {}
-      }
-      delay(DELAY_MS);
+    // while (true) {
+    for (let r = 0; r < ROWS; r++) {
+      console.log(this.grid[r]?.join(""));
     }
+
+    delay(DELAY_MS);
+    // console.clear();
+    // }
   }
 }
 
@@ -73,3 +79,6 @@ class Cell {
     return this.state === State.alive ? "." : "#";
   }
 }
+
+let game = new GameOfLife();
+game.render();
