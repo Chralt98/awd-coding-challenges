@@ -7,8 +7,10 @@ You will always get an valid array. And it will be always exactly one letter be 
 */
 
 class MissingLetterFinder {
-  static letterToNumber(letter: string): number {
-    return letter.toUpperCase().charCodeAt(0) - "A".charCodeAt(0) + 1;
+  static letterToNumber(ch: string): number {
+    if (!ch || ch.length !== 1) return 0;
+    const c = ch.toUpperCase().charCodeAt(0);
+    return c >= 65 && c <= 90 ? c - 64 : 0;
   }
 
   static numberToLetter(code: number): string {
@@ -17,13 +19,14 @@ class MissingLetterFinder {
 
   static findMissingLetter(charArray: string[]): string {
     for (let i = 0; i < charArray.length; i++) {
-      const currentChar = charArray[i];
+      const currentChar = charArray[i]!.toUpperCase();
       const nextChar = charArray[i + 1];
-      if (
-        nextChar &&
-        this.letterToNumber(currentChar!) + 1 !== this.letterToNumber(nextChar)
-      ) {
-        return this.numberToLetter(this.letterToNumber(currentChar!) + 1);
+      if (nextChar && currentChar) {
+        if (
+          this.letterToNumber(currentChar) + 1 !==
+          this.letterToNumber(nextChar)
+        )
+          return this.numberToLetter(this.letterToNumber(currentChar));
       }
     }
     throw new Error(
