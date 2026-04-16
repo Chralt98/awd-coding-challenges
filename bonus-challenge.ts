@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 /*
 Coding Challenge: Conway’s Game of Life
 The Game of Life is a cellular automaton devised by the British mathematician John Conway in 1970. It is a "zero-player game," meaning its evolution is determined by its initial state, requiring no further input.
@@ -31,8 +33,8 @@ const DELAY_MS: number = 100;
 const ALIVE_CELL_PROBABILITY: number = 0.1;
 
 enum State {
-  "alive",
-  "dead",
+  alive,
+  dead,
 }
 
 async function delay(ms: number): Promise<void> {
@@ -44,27 +46,35 @@ class GameOfLife {
 
   constructor() {
     this.grid = [];
-    for (let c = 0; c < COLUMNS; c++) {
-      const column: Cell[] = [];
-      this.grid[c] = column;
-      for (let r = 0; r < ROWS; r++) {
+
+    for (let r = 0; r < ROWS; r++) {
+      const row: Cell[] = [];
+      this.grid[r] = row;
+
+      for (let c = 0; c < COLUMNS; c++) {
         const randomNumber = Math.random();
-        column[r] = new Cell(
+        row[c] = new Cell(
           randomNumber < ALIVE_CELL_PROBABILITY ? State.alive : State.dead,
         );
       }
     }
   }
 
-  render() {
-    // while (true) {
-    for (let r = 0; r < ROWS; r++) {
-      console.log(this.grid[r]?.join(""));
-    }
+  async render(): Promise<void> {
+    while (true) {
+      const lines: string[] = [];
 
-    delay(DELAY_MS);
-    // console.clear();
-    // }
+      for (let r = 0; r < ROWS; r++) {
+        const row = this.grid[r];
+        if (!row) continue;
+        lines.push(row.join(""));
+      }
+
+      console.clear();
+      console.log(lines.join("\n"));
+
+      await delay(DELAY_MS);
+    }
   }
 }
 
@@ -80,5 +90,5 @@ class Cell {
   }
 }
 
-let game = new GameOfLife();
-game.render();
+const game = new GameOfLife();
+void game.render();

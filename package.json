@@ -13,9 +13,15 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Chralt98/awd-coding-challenges/issues"
   },
-  "homepage": "https://github.com/Chralt98/awd-coding-challenges#readme"
+  "homepage": "https://github.com/Chralt98/awd-coding-challenges#readme",
+  "dependencies": {
+    "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0"
+  }
 }
