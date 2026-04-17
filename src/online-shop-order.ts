@@ -1,4 +1,4 @@
-import type { Product, Customer } from "./online-shop-types.js";
+import type { Product, Customer } from "../online-shop-types.js";
 
 export type LineItem = {
   product: Product;

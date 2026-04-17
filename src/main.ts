@@ -1,5 +1,5 @@
-import { formatId } from "./types.js";
-import type { Track, FeaturedTrack } from "./types.js";
+import { formatId } from "../types.js";
+import type { Track, FeaturedTrack } from "../types.js";
 
 const libraryName = "Late Night Listening";
 

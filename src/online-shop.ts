@@ -1,5 +1,5 @@
-import type { Product, Customer } from "./online-shop-types.js";
-import type { Order, LineItem } from "./online-shop-order.js";
+import type { Product, Customer } from "../online-shop-types.js";
+import type { Order, LineItem } from "../online-shop-order.js";
 
 function orderTotal(order: Order): number {
   return order.lineItems

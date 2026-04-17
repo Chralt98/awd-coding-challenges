@@ -1,5 +1,5 @@
-import { Film } from "./film-watchlist-types.js";
-import type { Playlist, Watchable } from "./film-watchlist-types.js";
+import { Film } from "../film-watchlist-types.js";
+import type { Playlist, Watchable } from "../film-watchlist-types.js";
 
 function formatFilm(film: Film): string {
   return `The film has ${film.watched ? "" : "not"} been watched. ${film.rating ? "Its rating is " + film.rating + "." : ""}`;
