@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "dev": "nodemon",
+    "start:dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit --watch"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.21.0"
+  }
+}
