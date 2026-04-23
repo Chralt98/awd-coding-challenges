@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  },
+  "scripts": {
+    "dev": "tsx --watch src/bookService.ts",
+    "typecheck": "tsc --watch",
+    "con": "concurrently \"bun run dev\" \"bun run typecheck\""
+  },
+  "type": "module"
+}
