@@ -1,0 +1,54 @@
+{% macro input(label, placeholder, type) %}
+  {% if type === "textarea" %}
+    <textarea
+      class="form-control"
+      id="message"
+      placeholder="{{ placeholder }}"
+      style="height: 12rem"
+      data-sb-validations="required"
+    ></textarea>
+  {% else %}
+    <input
+      class="form-control"
+      id="name"
+      type="{{ label }}"
+      placeholder="{{ placeholder }}"
+      data-sb-validations="required"
+    />
+  {% endif %}
+{% endmacro %}
+
+<!--
+<input
+  class="form-control"
+  id="name"
+  type="text"
+  placeholder="Enter your name..."
+  data-sb-validations="required"
+/>
+
+<input
+  class="form-control"
+  id="email"
+  type="email"
+  placeholder="Enter your email..."
+  data-sb-validations="required,email"
+/>
+
+<input
+  class="form-control"
+  id="phone"
+  type="tel"
+  placeholder="Enter your phone number..."
+  data-sb-validations="required"
+/>
+
+<textarea
+  class="form-control"
+  id="message"
+  placeholder="Enter your message here..."
+  style="height: 12rem"
+  data-sb-validations="required"
+></textarea>
+
+-->

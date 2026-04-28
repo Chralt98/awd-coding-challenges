@@ -1,0 +1,24 @@
+{
+  "name": "startbootstrap-clean-blog-gh-pages",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "@types/nunjucks": "^3.2.6",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.3",
+    "prettier-plugin-jinja-template": "^2.1.0",
+    "tsx": "^4.21.0"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nunjucks": "^3.2.4"
+  }
+}
