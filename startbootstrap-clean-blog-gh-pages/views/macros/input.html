@@ -1,54 +1,33 @@
 {% macro input(label, placeholder, type) %}
-  {% if type === "textarea" %}
-    <textarea
-      class="form-control"
-      id="message"
-      placeholder="{{ placeholder }}"
-      style="height: 12rem"
-      data-sb-validations="required"
-    ></textarea>
-  {% else %}
-    <input
-      class="form-control"
-      id="name"
-      type="{{ label }}"
-      placeholder="{{ placeholder }}"
-      data-sb-validations="required"
-    />
-  {% endif %}
+  <div class="form-floating">
+    {% if type == "textarea" %}
+      <textarea
+        class="form-control"
+        id="{{ label }}"
+        placeholder="{{ placeholder }}"
+        style="height: 12rem"
+        data-sb-validations="required"
+      ></textarea>
+    {% else %}
+      <input
+        class="form-control"
+        id="{{ label }}"
+        type="{{ type }}"
+        placeholder="{{ placeholder }}"
+        data-sb-validations="required{{ ',email' if type == 'email' else '' }}"
+      />
+    {% endif %}
+    <label for="{{ label }}"
+      >{{ label | capitalize }}
+      {{ "Number" if label == "phone" else "" }}</label
+    >
+    <div class="invalid-feedback" data-sb-feedback="{{ label }}:required">
+      A {{ label }} {{ "number" if label == "phone" else "" }} is required.
+    </div>
+    {% if type == "email" %}
+      <div class="invalid-feedback" data-sb-feedback="{{ label }}:email">
+        {{ label | capitalize }} is not valid.
+      </div>
+    {% endif %}
+  </div>
 {% endmacro %}
-
-<!--
-<input
-  class="form-control"
-  id="name"
-  type="text"
-  placeholder="Enter your name..."
-  data-sb-validations="required"
-/>
-
-<input
-  class="form-control"
-  id="email"
-  type="email"
-  placeholder="Enter your email..."
-  data-sb-validations="required,email"
-/>
-
-<input
-  class="form-control"
-  id="phone"
-  type="tel"
-  placeholder="Enter your phone number..."
-  data-sb-validations="required"
-/>
-
-<textarea
-  class="form-control"
-  id="message"
-  placeholder="Enter your message here..."
-  style="height: 12rem"
-  data-sb-validations="required"
-></textarea>
-
--->
