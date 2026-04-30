@@ -3,17 +3,17 @@
   <h2>Welcome to the Burn-on-read service!</h2>
   <p>
     This service allows you to create messages that will be automatically
-    deleted after being read once. Perfect for sharing sensitive information
-    securely.
+    deleted after being read once.
   </p>
   <p>
-    To create a burn-on-read message, simply send a POST request to
-    <code>/messages</code> with the message content in the request body. You
-    will receive a unique URL that you can share with the intended recipient.
+    You will receive a unique URL that you can share with the intended
+    recipient. Once the recipient accesses the URL, the message will be
+    displayed and then immediately deleted from the server, ensuring that it
+    cannot be accessed again.
   </p>
-  <p>
-    Once the recipient accesses the URL, the message will be displayed and then
-    immediately deleted from our servers, ensuring that it cannot be accessed
-    again.
-  </p>
+  <label for="message">Your message:</label>
+  <form id="message-form">
+    <textarea id="message" name="message" rows="6"></textarea>
+    <button id="submit-btn">Submit</button>
+  </form>
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends "_base.html" %}
+{% block content %}
+  <h2>Your one-time link has been created!</h2>
+  <p>
+    Do not click the link below, as it will be deleted after being accessed
+    once.
+  </p>
+  <p>
+    Make sure to copy the URL below and share it with the intended recipient.
+    Once they access the link, the message will be displayed and then deleted
+    from the server.
+  </p>
+  <div class="container">
+    <a href="/messages/{{ unique_link }}" class="button">{{ unique_link }}</a>
+  </div>
+{% endblock %}
