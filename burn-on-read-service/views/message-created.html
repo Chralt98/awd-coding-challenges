@@ -1,5 +1,19 @@
 {% extends "_base.html" %}
-
+{% block head %}
+  <script>
+    function copyToClipboard() {
+      const url = window.location.origin + "/messages/{{ messageToken }}";
+      navigator.clipboard.writeText(url).then(
+        function () {
+          alert("URL copied to clipboard!");
+        },
+        function (err) {
+          alert("Failed to copy URL: ", err);
+        },
+      );
+    }
+  </script>
+{% endblock %}
 {% block content %}
   <h2>Your one-time link has been created!</h2>
   <p>
@@ -11,7 +25,12 @@
     Once they access the link, the message will be displayed and then deleted
     from the server.
   </p>
-  <div id="unique-link">
-    <a href="{{ uniqueLink }}" class="button">{{ uniqueLink }}</a>
+  <div>
+    <a href="/messages/{{ messageToken }}" class="button"
+      >/messages/{{ messageToken }}</a
+    >
+    <button id="copy-btn" class="button" onclick="copyToClipboard()">
+      Copy URL
+    </button>
   </div>
 {% endblock %}
