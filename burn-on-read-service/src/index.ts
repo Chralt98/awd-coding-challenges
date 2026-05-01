@@ -1,10 +1,13 @@
 import express from "express";
 import nunjucks from "nunjucks";
-import { logger, ensureLogFile, LOG_FILE } from "./logger";
-import messagesRouter from "./routes/messages";
+import { logger, ensureLogFile, LOG_FILE } from "./logger.js";
+import messagesRouter from "./routes/messages.js";
 
 const app = express();
 const port = process.env.PORT || "3000";
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 nunjucks.configure("views", {
   autoescape: true,
@@ -13,22 +16,10 @@ nunjucks.configure("views", {
 
 await ensureLogFile(LOG_FILE);
 app.use(logger);
-
-express.urlencoded({ extended: true }); // add body parser middleware for form data
 app.use("/messages", messagesRouter);
 
 app.get("/", (req, res) => {
   res.render("index.html");
-});
-
-app.post("/", (req, res) => {
-  const { message } = req.body;
-  if (!message) {
-    res.status(400).json({ error: "Message is required" });
-    return;
-  }
-
-  res.render("index.html", { link });
 });
 
 app.listen(port, () => {

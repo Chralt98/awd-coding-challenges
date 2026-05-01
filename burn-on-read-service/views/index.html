@@ -12,8 +12,11 @@
     cannot be accessed again.
   </p>
   <label for="message">Your message:</label>
-  <form id="message-form">
+  <form id="message-form" action="/messages/save" method="post">
     <textarea id="message" name="message" rows="6"></textarea>
+    {% if error %}
+      <p>{{ error }}</p>
+    {% endif %}
     <button id="submit-btn">Submit</button>
   </form>
 {% endblock %}
