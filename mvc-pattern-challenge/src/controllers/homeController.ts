@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
-import { PAGE_SIZE, formatDate, slugify, loadPosts } from "../app.js";
+import { PAGE_SIZE } from "../app.js";
+import { formatDate, slugify, loadPosts } from "../models/postModel.js";
 
 export function showHome(req: Request, res: Response) {
   const posts = loadPosts();

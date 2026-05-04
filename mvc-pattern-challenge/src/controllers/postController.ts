@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loadPosts, formatDate, slugify } from "../app.js";
+import { formatDate, slugify, loadPosts } from "../models/postModel.js";
 
 export function showPost(req: Request<{ slug: string }>, res: Response) {
   const slug = Array.isArray(req.params.slug)
