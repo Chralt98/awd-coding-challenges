@@ -1,9 +1,8 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
+import * as aboutController from "../controllers/aboutController";
 
 const router = express.Router();
 
-router.get("/", (req: Request, res: Response) => {
-  res.render("about.html");
-});
+router.get("/", aboutController.showAbout);
 
 export default router;

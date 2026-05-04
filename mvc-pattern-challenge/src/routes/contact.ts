@@ -1,9 +1,8 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
+import * as contactController from "../controllers/contactController";
 
 const router = express.Router();
 
-router.get("/", (req: Request, res: Response) => {
-  res.render("contact.html");
-});
+router.get("/", contactController.showContact);
 
 export default router;
