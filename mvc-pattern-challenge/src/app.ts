@@ -1,7 +1,12 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 import nunjucks from "nunjucks";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import homeRouter from "./routes/home.js";
+import postsRouter from "./routes/posts.js";
+import contactRouter from "./routes/contact.js";
+import aboutRouter from "./routes/about.js";
+import examplePostRouter from "./routes/example-post.js";
 
 interface Post {
   title: string;
@@ -13,7 +18,7 @@ interface Post {
 }
 
 const app = express();
-const PAGE_SIZE = 2;
+export const PAGE_SIZE = 2;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,18 +62,18 @@ const seedPosts: Post[] = [
   },
 ];
 
-function loadPosts(): Post[] {
+export function loadPosts(): Post[] {
   return seedPosts;
 }
 
-function slugify(title: string): string {
+export function slugify(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
 
-function formatDate(unix: number): string {
+export function formatDate(unix: number): string {
   return new Date(unix * 1000).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -76,87 +81,15 @@ function formatDate(unix: number): string {
   });
 }
 
-app.get("/", (req: Request, res: Response) => {
-  const posts = loadPosts();
+app.get("/", homeRouter);
 
-  const authorFilter =
-    typeof req.query.author === "string" ? req.query.author.trim() : "";
-  const sort = req.query.sort === "oldest" ? "oldest" : "newest";
-  const page =
-    typeof req.query.page === "string" &&
-    Number.isInteger(Number(req.query.page))
-      ? Math.max(1, Number(req.query.page))
-      : 1;
+app.get("/posts", postsRouter);
 
-  const filteredPosts = authorFilter
-    ? posts.filter((post) =>
-        post.author.toLowerCase().includes(authorFilter.toLowerCase()),
-      )
-    : posts;
+app.get("/contact", contactRouter);
 
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sort === "oldest") {
-      return a.createdAt - b.createdAt;
-    }
-    return b.createdAt - a.createdAt;
-  });
+app.get("/about", aboutRouter);
 
-  const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pagedPosts = sortedPosts.slice(start, start + PAGE_SIZE);
-
-  const view = pagedPosts.map((post) => ({
-    ...post,
-    slug: slugify(post.title),
-    createdAt: formatDate(post.createdAt),
-  }));
-
-  res.render("index.html", {
-    posts: view,
-    controls: {
-      author: authorFilter,
-      sort,
-      page: currentPage,
-      totalPages,
-      hasPrev: currentPage > 1,
-      hasNext: currentPage < totalPages,
-    },
-  });
-});
-
-app.get("/posts/:slug", (req: Request, res: Response) => {
-  const slug = Array.isArray(req.params.slug)
-    ? req.params.slug[0]
-    : req.params.slug;
-
-  if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
-    res.status(400).send("Invalid slug");
-    return;
-  }
-
-  const posts = loadPosts();
-  const post = posts.find((p) => slugify(p.title) === slug);
-  if (!post) {
-    res.status(404).send("Post not found");
-    return;
-  }
-  res.render("post.html", {
-    post: { ...post, createdAt: formatDate(post.createdAt) },
-  });
-});
-
-app.get("/contact", (req: Request, res: Response) => {
-  res.render("contact.html");
-});
-
-app.get("/about", (req: Request, res: Response) => {
-  res.render("about.html");
-});
-
-app.get("/example-post", (req: Request, res: Response) => {
-  res.render("postExample.html");
-});
+app.get("/example-post", examplePostRouter);
 
 const port = Number(process.env.PORT) || 3000;
 
