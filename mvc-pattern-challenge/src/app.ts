@@ -81,15 +81,15 @@ export function formatDate(unix: number): string {
   });
 }
 
-app.get("/", homeRouter);
+app.use("/", homeRouter);
 
-app.get("/posts", postsRouter);
+app.use("/posts", postsRouter);
 
-app.get("/contact", contactRouter);
+app.use("/contact", contactRouter);
 
-app.get("/about", aboutRouter);
+app.use("/about", aboutRouter);
 
-app.get("/example-post", examplePostRouter);
+app.use("/example-post", examplePostRouter);
 
 const port = Number(process.env.PORT) || 3000;
 
