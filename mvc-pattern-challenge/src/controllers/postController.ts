@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { formatDate, slugify, loadPosts } from "../models/postModel.js";
+import { formatDate, findPostBySlug } from "../models/postModel.js";
 
 export function showPost(req: Request<{ slug: string }>, res: Response) {
   const slug = Array.isArray(req.params.slug)
@@ -11,8 +11,7 @@ export function showPost(req: Request<{ slug: string }>, res: Response) {
     return;
   }
 
-  const posts = loadPosts();
-  const post = posts.find((p) => slugify(p.title) === slug);
+  const post = findPostBySlug(slug);
   if (!post) {
     res.status(404).send("Post not found");
     return;

@@ -1,3 +1,12 @@
+/*
+- your data interfaces and types
+- constants related to your data source, like file paths
+- helper functions specifically related to data parsing, like generating slugs
+- a function to fetch all posts
+- a function to fetch a single post by its identifier
+- a function to overwrite the data file with new data, which you will need for the next challenge
+*/
+
 interface Post {
   title: string;
   image: string;
@@ -57,4 +66,9 @@ export function formatDate(unix: number): string {
     month: "long",
     day: "numeric",
   });
+}
+
+export function findPostBySlug(slug: string): Post | undefined {
+  const posts = loadPosts();
+  return posts.find((p) => slugify(p.title) === slug);
 }
