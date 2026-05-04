@@ -2,11 +2,11 @@ import express from "express";
 import nunjucks from "nunjucks";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import homeRouter from "./routes/home.js";
-import postsRouter from "./routes/posts.js";
-import contactRouter from "./routes/contact.js";
-import aboutRouter from "./routes/about.js";
-import examplePostRouter from "./routes/example-post.js";
+import homeRouter from "./routes/homeRoutes.js";
+import postsRouter from "./routes/postRoutes.js";
+import contactRouter from "./routes/contactRoutes.js";
+import aboutRouter from "./routes/aboutRoutes.js";
+import examplePostRouter from "./routes/examplePostRoutes.js";
 
 interface Post {
   title: string;
