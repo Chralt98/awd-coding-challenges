@@ -7,7 +7,8 @@
     "dev": "nodemon",
     "start": "tsx src/app.ts",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:seed": "sqlite3 db/blog.db < db/seeddb.sql"
   },
   "keywords": [],
   "author": "",
@@ -15,12 +16,17 @@
   "type": "module",
   "dependencies": {
     "express": "^5.2.1",
-    "nunjucks": "^3.2.4"
+    "nunjucks": "^3.2.4",
+    "prettier": "^3.8.3",
+    "prettier-plugin-jinja-template": "^2.2.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
     "@types/nunjucks": "^3.2.6",
+    "@types/sqlite3": "^5.1.0",
     "nodemon": "^3.1.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
