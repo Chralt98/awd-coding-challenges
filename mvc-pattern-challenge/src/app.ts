@@ -7,6 +7,7 @@ import postsRouter from "./routes/postRoutes.js";
 import contactRouter from "./routes/contactRoutes.js";
 import aboutRouter from "./routes/aboutRoutes.js";
 import examplePostRouter from "./routes/examplePostRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
 export const PAGE_SIZE = 2;
@@ -16,10 +17,15 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const assetsDir = path.join(projectRoot, "src", "assets");
 const cssDir = path.join(projectRoot, "src", "css");
+const viewsDir = path.join(projectRoot, "src", "views");
 
-nunjucks.configure(projectRoot, { autoescape: true, express: app });
+nunjucks.configure(viewsDir, {
+  autoescape: true,
+  express: app,
+});
 app.use("/assets", express.static(assetsDir));
 app.use("/css", express.static(cssDir));
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/", homeRouter);
 
@@ -30,6 +36,8 @@ app.use("/contact", contactRouter);
 app.use("/about", aboutRouter);
 
 app.use("/example-post", examplePostRouter);
+
+app.use("/admin", adminRouter);
 
 const port = Number(process.env.PORT) || 3000;
 

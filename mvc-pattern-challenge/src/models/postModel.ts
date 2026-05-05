@@ -72,3 +72,23 @@ export function findPostBySlug(slug: string): Post | undefined {
   const posts = loadPosts();
   return posts.find((p) => slugify(p.title) === slug);
 }
+
+export function addPost(post: Post): void {
+  const posts = loadPosts();
+  posts.push(post);
+}
+
+export function updatePost(slug: string, changes: Partial<Post>): void {
+  const post = findPostBySlug(slug);
+  if (post) {
+    Object.assign(post, changes);
+  }
+}
+
+export function deletePost(slug: string): void {
+  const posts = loadPosts();
+  const index = posts.findIndex((p) => slugify(p.title) === slug);
+  if (index !== -1) {
+    posts.splice(index, 1);
+  }
+}
