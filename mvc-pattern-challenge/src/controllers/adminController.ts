@@ -4,6 +4,7 @@ import {
   addViewMetadata,
   Post,
   addPost,
+  findPostBySlug,
 } from "../models/postModel.js";
 
 export async function showAdmin(_req: Request, res: Response) {
@@ -16,7 +17,11 @@ export async function showAdmin(_req: Request, res: Response) {
 }
 
 export function showNewPostForm(_req: Request, res: Response) {
-  res.render("postForm.html");
+  res.render("postForm.html", {
+    formTitle: "Add Post",
+    formAction: "/admin/posts",
+    submitLabel: "Send",
+  });
 }
 
 export async function createNewPost(req: Request, res: Response) {
@@ -41,7 +46,24 @@ export async function createNewPost(req: Request, res: Response) {
   res.redirect("/admin");
 }
 
-export function showEditPostForm(req: Request, res: Response) {}
+export async function showEditPostForm(
+  req: Request<{ slug: string }>,
+  res: Response,
+) {
+  const post = await findPostBySlug(req.params.slug);
+
+  if (!post) {
+    res.status(404).send("Post not found");
+    return;
+  }
+
+  res.render("postForm.html", {
+    formTitle: "Edit Post",
+    formAction: `/admin/posts/${req.params.slug}`,
+    submitLabel: "Save",
+    post,
+  });
+}
 
 export function updatePost(req: Request, res: Response) {}
 

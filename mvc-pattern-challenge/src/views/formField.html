@@ -1,10 +1,11 @@
-{% macro formField(id, label, type='text') %}
+{% macro formField(id, label, type='text', value='') %}
   <div class="form-floating">
     <input
       class="form-control"
       id="{{ id }}"
       name="{{ id }}"
       type="{{ type }}"
+      value="{{ value }}"
       placeholder="{{ label }}"
       data-sb-validations="required"
     />

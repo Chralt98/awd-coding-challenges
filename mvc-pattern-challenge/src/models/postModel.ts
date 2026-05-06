@@ -40,11 +40,8 @@ export function formatDate(unix: number): string {
 }
 
 export async function findPostBySlug(slug: string): Promise<Post | undefined> {
-  const db = getDB();
-  return await db.get<Post>(
-    "SELECT * FROM blog_entries WHERE LOWER(REPLACE(title, ' ', '-')) = ?",
-    slug,
-  );
+  const posts = await loadPosts();
+  return posts.find((post) => slugify(post.title) === slug);
 }
 
 export async function findPostById(id: string): Promise<Post | undefined> {
@@ -130,8 +127,14 @@ export async function updatePost(
 
 export async function deletePost(slug: string): Promise<void> {
   const db = getDB();
+  const post = await findPostBySlug(slug);
+
+  if (!post || post.id === undefined) {
+    return;
+  }
+
   await db.run(
-    "DELETE FROM blog_entries WHERE LOWER(REPLACE(title, ' ', '-')) = ?",
-    slug,
+    "DELETE FROM blog_entries WHERE id = ?",
+    post.id,
   );
 }
