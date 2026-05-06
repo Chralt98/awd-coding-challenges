@@ -5,6 +5,7 @@ import {
   Post,
   addPost,
   findPostBySlug,
+  updatePost as savePostChanges,
 } from "../models/postModel.js";
 
 export async function showAdmin(_req: Request, res: Response) {
@@ -65,6 +66,26 @@ export async function showEditPostForm(
   });
 }
 
-export function updatePost(req: Request, res: Response) {}
+export async function updatePost(
+  req: Request<{ slug: string }>,
+  res: Response,
+) {
+  const { title, image, author, teaser, content } = req.body;
+
+  if (!title || !image || !author || !teaser || !content) {
+    res.status(400).send("All fields are required.");
+    return;
+  }
+
+  await savePostChanges(req.params.slug, {
+    title,
+    image,
+    author,
+    teaser,
+    content,
+  });
+
+  res.redirect("/admin");
+}
 
 export function deletePost(req: Request, res: Response) {}
