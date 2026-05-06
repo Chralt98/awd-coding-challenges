@@ -1,13 +1,9 @@
 import { Request, Response } from "express";
-import { formatDate, slugify, loadPosts } from "../models/postModel.js";
+import { loadPosts, addViewMetadata } from "../models/postModel.js";
 
 export function showAdmin(req: Request, res: Response) {
   const posts = loadPosts();
-  const view = posts.map((post) => ({
-    ...post,
-    slug: slugify(post.title),
-    createdAt: formatDate(post.createdAt),
-  }));
+  const view = addViewMetadata(posts);
 
   res.render("admin.html", {
     posts: view,

@@ -1,6 +1,14 @@
 import { type Request, type Response } from "express";
-import { PAGE_SIZE } from "../app.js";
-import { formatDate, slugify, loadPosts } from "../models/postModel.js";
+import {
+  formatDate,
+  slugify,
+  loadPosts,
+  filterPostsByAuthor,
+  sortPostsByDate,
+  addViewMetadata,
+} from "../models/postModel.js";
+
+export const PAGE_SIZE = 2;
 
 export function showHome(req: Request, res: Response) {
   const posts = loadPosts();
@@ -15,28 +23,17 @@ export function showHome(req: Request, res: Response) {
       : 1;
 
   const filteredPosts = authorFilter
-    ? posts.filter((post) =>
-        post.author.toLowerCase().includes(authorFilter.toLowerCase()),
-      )
+    ? filterPostsByAuthor(posts, authorFilter)
     : posts;
 
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    if (sort === "oldest") {
-      return a.createdAt - b.createdAt;
-    }
-    return b.createdAt - a.createdAt;
-  });
+  const sortedPosts = sortPostsByDate(filteredPosts, sort);
 
   const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * PAGE_SIZE;
   const pagedPosts = sortedPosts.slice(start, start + PAGE_SIZE);
 
-  const view = pagedPosts.map((post) => ({
-    ...post,
-    slug: slugify(post.title),
-    createdAt: formatDate(post.createdAt),
-  }));
+  const view = addViewMetadata(pagedPosts);
 
   res.render("index.html", {
     posts: view,

@@ -10,7 +10,6 @@ import examplePostRouter from "./routes/examplePostRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
-export const PAGE_SIZE = 2;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -37,6 +37,34 @@ export function formatDate(unix: number): string {
   });
 }
 
+export function filterPostsByAuthor(posts: Post[], author: string): Post[] {
+  return posts.filter((post) =>
+    post.author.toLowerCase().includes(author.toLowerCase()),
+  );
+}
+
+export function sortPostsByDate(
+  posts: Post[],
+  sort: "newest" | "oldest",
+): Post[] {
+  return [...posts].sort((a, b) => {
+    if (sort === "oldest") {
+      return a.createdAt - b.createdAt;
+    }
+    return b.createdAt - a.createdAt;
+  });
+}
+
+export function addViewMetadata(
+  posts: Post[],
+): (Omit<Post, "createdAt"> & { slug: string; createdAt: string })[] {
+  return posts.map((post) => ({
+    ...post,
+    slug: slugify(post.title),
+    createdAt: formatDate(post.createdAt),
+  }));
+}
+
 export function findPostBySlug(slug: string): Post | undefined {
   const posts = loadPosts();
   return posts.find((p) => slugify(p.title) === slug);
