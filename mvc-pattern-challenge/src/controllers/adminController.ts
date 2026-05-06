@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { loadPosts, addViewMetadata } from "../models/postModel.js";
 
-export function showAdmin(req: Request, res: Response) {
-  const posts = loadPosts();
+export async function showAdmin(req: Request, res: Response) {
+  const posts = await loadPosts();
   const view = addViewMetadata(posts);
 
   res.render("admin.html", {

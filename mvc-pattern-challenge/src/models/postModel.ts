@@ -10,6 +10,7 @@ import { getDB } from "../db/database";
 */
 
 export interface Post {
+  id?: number;
   title: string;
   image: string;
   author: string;
@@ -79,30 +80,58 @@ export function addViewMetadata(
   }));
 }
 
-export function addPost(post: Post): void {
-  const posts = loadPosts();
-  posts.push(post);
-  savePosts(posts);
+export async function addPost(post: Post): Promise<void> {
+  const db = getDB();
+  await db.run(
+    `
+      INSERT INTO blog_entries (title, teaser, author, createdAt, image, content)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `,
+    post.title,
+    post.teaser,
+    post.author,
+    post.createdAt,
+    post.image,
+    post.content,
+  );
 }
 
-export function updatePost(slug: string, changes: Partial<Post>): void {
-  const posts = loadPosts();
-  const postIndex = posts.findIndex((p) => slugify(p.title) === slug);
+export async function updatePost(
+  slug: string,
+  changes: Partial<Post>,
+): Promise<void> {
+  const db = getDB();
+  const existingPost = await findPostBySlug(slug);
 
-  if (postIndex !== -1) {
-    posts[postIndex] = {
-      ...posts[postIndex],
-      ...changes,
-    };
-    savePosts(posts);
+  if (!existingPost || existingPost.id === undefined) {
+    return;
   }
+
+  const updatedPost = {
+    ...existingPost,
+    ...changes,
+  };
+
+  await db.run(
+    `
+      UPDATE blog_entries
+      SET title = ?, teaser = ?, author = ?, createdAt = ?, image = ?, content = ?
+      WHERE id = ?
+    `,
+    updatedPost.title,
+    updatedPost.teaser,
+    updatedPost.author,
+    updatedPost.createdAt,
+    updatedPost.image,
+    updatedPost.content,
+    existingPost.id,
+  );
 }
 
-export function deletePost(slug: string): void {
-  const posts = loadPosts();
-  const index = posts.findIndex((p) => slugify(p.title) === slug);
-  if (index !== -1) {
-    posts.splice(index, 1);
-    savePosts(posts);
-  }
+export async function deletePost(slug: string): Promise<void> {
+  const db = getDB();
+  await db.run(
+    "DELETE FROM blog_entries WHERE LOWER(REPLACE(title, ' ', '-')) = ?",
+    slug,
+  );
 }
