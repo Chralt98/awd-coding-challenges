@@ -13,7 +13,12 @@
         <!-- To make this form functional, sign up at-->
         <!-- https://startbootstrap.com/solution/contact-forms-->
         <!-- to get an API token!-->
-        <form id="adminPostForm" data-sb-form-api-token="API_TOKEN">
+        <form
+          id="adminPostForm"
+          data-sb-form-api-token="API_TOKEN"
+          method="POST"
+          action="/admin/posts"
+        >
           {{ forms.formField('title', 'Title') }}
           {{ forms.formField('image', 'Image Link') }}
           {{ forms.formField('author', 'Author') }}
@@ -47,7 +52,7 @@
           </div>
           <!-- Submit Button-->
           <button
-            class="btn btn-primary text-uppercase disabled"
+            class="btn btn-primary text-uppercase"
             id="submitButton"
             type="submit"
           >
