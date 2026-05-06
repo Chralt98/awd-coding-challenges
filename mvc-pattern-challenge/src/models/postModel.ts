@@ -1,6 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { getDB } from "../db/database";
 
 /*
 - your data interfaces and types
@@ -11,7 +9,7 @@ import { fileURLToPath } from "node:url";
 - a function to overwrite the data file with new data, which you will need for the next challenge
 */
 
-interface Post {
+export interface Post {
   title: string;
   image: string;
   author: string;
@@ -20,27 +18,9 @@ interface Post {
   content: string;
 }
 
-interface PostsData {
-  seedPosts: Post[];
-}
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const postsFilePath = join(__dirname, "../data/posts.json");
-
-export function loadPosts(): Post[] {
-  const fileContent = readFileSync(postsFilePath, "utf-8");
-  const postsData = JSON.parse(fileContent) as PostsData;
-
-  return postsData.seedPosts;
-}
-
-export function savePosts(posts: Post[]): void {
-  const postsData: PostsData = {
-    seedPosts: posts,
-  };
-
-  writeFileSync(postsFilePath, JSON.stringify(postsData, null, 2), "utf-8");
+export async function loadPosts(): Promise<Post[]> {
+  const db = getDB();
+  return await db.all<Post[]>("SELECT * FROM blog_entries");
 }
 
 export function slugify(title: string): string {
@@ -56,6 +36,19 @@ export function formatDate(unix: number): string {
     month: "long",
     day: "numeric",
   });
+}
+
+export async function findPostBySlug(slug: string): Promise<Post | undefined> {
+  const db = getDB();
+  return await db.get<Post>(
+    "SELECT * FROM blog_entries WHERE LOWER(REPLACE(title, ' ', '-')) = ?",
+    slug,
+  );
+}
+
+export async function findPostById(id: string): Promise<Post | undefined> {
+  const db = getDB();
+  return await db.get<Post>("SELECT * FROM blog_entries WHERE id = ?", id);
 }
 
 export function filterPostsByAuthor(posts: Post[], author: string): Post[] {
@@ -84,11 +77,6 @@ export function addViewMetadata(
     slug: slugify(post.title),
     createdAt: formatDate(post.createdAt),
   }));
-}
-
-export function findPostBySlug(slug: string): Post | undefined {
-  const posts = loadPosts();
-  return posts.find((p) => slugify(p.title) === slug);
 }
 
 export function addPost(post: Post): void {

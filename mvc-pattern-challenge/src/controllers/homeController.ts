@@ -4,12 +4,19 @@ import {
   filterPostsByAuthor,
   sortPostsByDate,
   addViewMetadata,
+  type Post,
 } from "../models/postModel.js";
 
 export const PAGE_SIZE = 2;
 
-export function showHome(req: Request, res: Response) {
-  const posts = loadPosts();
+export async function showHome(req: Request, res: Response) {
+  var posts: Post[] = [];
+  try {
+    posts = await loadPosts();
+  } catch (error) {
+    console.error("Error loading posts:", error);
+    return res.status(500).send("Error loading posts");
+  }
 
   const authorFilter =
     typeof req.query.author === "string" ? req.query.author.trim() : "";

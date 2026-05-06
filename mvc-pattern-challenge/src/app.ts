@@ -8,6 +8,7 @@ import contactRouter from "./routes/contactRoutes.js";
 import aboutRouter from "./routes/aboutRoutes.js";
 import examplePostRouter from "./routes/examplePostRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import { connectDB, closeDB } from "./db/database.js";
 
 const app = express();
 
@@ -40,6 +41,20 @@ app.use("/admin", adminRouter);
 
 const port = Number(process.env.PORT) || 3000;
 
+await connectDB();
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+});
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT received. Closing database connection...");
+  await closeDB();
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received. Closing database connection...");
+  await closeDB();
+  process.exit(0);
 });
