@@ -1,7 +1,5 @@
 import { type Request, type Response } from "express";
 import {
-  formatDate,
-  slugify,
   loadPosts,
   filterPostsByAuthor,
   sortPostsByDate,

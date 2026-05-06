@@ -1,4 +1,6 @@
-import { seedPosts } from "../data/posts.json";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /*
 - your data interfaces and types
@@ -18,8 +20,27 @@ interface Post {
   content: string;
 }
 
+interface PostsData {
+  seedPosts: Post[];
+}
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const postsFilePath = join(__dirname, "../data/posts.json");
+
 export function loadPosts(): Post[] {
-  return seedPosts;
+  const fileContent = readFileSync(postsFilePath, "utf-8");
+  const postsData = JSON.parse(fileContent) as PostsData;
+
+  return postsData.seedPosts;
+}
+
+export function savePosts(posts: Post[]): void {
+  const postsData: PostsData = {
+    seedPosts: posts,
+  };
+
+  writeFileSync(postsFilePath, JSON.stringify(postsData, null, 2), "utf-8");
 }
 
 export function slugify(title: string): string {
@@ -73,12 +94,19 @@ export function findPostBySlug(slug: string): Post | undefined {
 export function addPost(post: Post): void {
   const posts = loadPosts();
   posts.push(post);
+  savePosts(posts);
 }
 
 export function updatePost(slug: string, changes: Partial<Post>): void {
-  const post = findPostBySlug(slug);
-  if (post) {
-    Object.assign(post, changes);
+  const posts = loadPosts();
+  const postIndex = posts.findIndex((p) => slugify(p.title) === slug);
+
+  if (postIndex !== -1) {
+    posts[postIndex] = {
+      ...posts[postIndex],
+      ...changes,
+    };
+    savePosts(posts);
   }
 }
 
@@ -87,5 +115,6 @@ export function deletePost(slug: string): void {
   const index = posts.findIndex((p) => slugify(p.title) === slug);
   if (index !== -1) {
     posts.splice(index, 1);
+    savePosts(posts);
   }
 }
