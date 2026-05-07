@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import sanitizeHtml from "sanitize-html";
 import {
   loadPosts,
   addViewMetadata,
@@ -6,7 +7,45 @@ import {
   addPost,
   findPostBySlug,
   updatePost as savePostChanges,
+  deletePost as removePost,
 } from "../models/postModel.js";
+
+const allowedContentTags = [
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "a",
+  "ul",
+  "ol",
+  "li",
+  "strong",
+  "em",
+  "blockquote",
+  "br",
+  "img",
+];
+
+const allowedContentAttributes = {
+  a: ["href", "title", "target", "rel"],
+  img: ["src", "alt", "title"],
+};
+
+function sanitizePostContent(content: string): string {
+  return sanitizeHtml(content, {
+    allowedTags: allowedContentTags,
+    allowedAttributes: allowedContentAttributes,
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      a: sanitizeHtml.simpleTransform("a", {
+        rel: "noopener noreferrer",
+      }),
+    },
+  });
+}
 
 export async function showAdmin(_req: Request, res: Response) {
   const posts = await loadPosts();
@@ -38,7 +77,7 @@ export async function createNewPost(req: Request, res: Response) {
     image,
     author,
     teaser,
-    content,
+    content: sanitizePostContent(content),
     createdAt: Math.floor(Date.now() / 1000),
   } as Post;
 
@@ -82,10 +121,17 @@ export async function updatePost(
     image,
     author,
     teaser,
-    content,
+    content: sanitizePostContent(content),
   });
 
   res.redirect("/admin");
 }
 
-export function deletePost(req: Request, res: Response) {}
+export async function deletePost(
+  req: Request<{ slug: string }>,
+  res: Response,
+) {
+  await removePost(req.params.slug);
+
+  res.redirect("/admin");
+}
