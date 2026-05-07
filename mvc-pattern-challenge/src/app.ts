@@ -9,6 +9,7 @@ import aboutRouter from "./routes/aboutRoutes.js";
 import examplePostRouter from "./routes/examplePostRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import { connectDB, closeDB } from "./db/database.js";
+import methodOverride from "method-override";
 
 const app = express();
 
@@ -25,7 +26,17 @@ nunjucks.configure(viewsDir, {
 });
 app.use("/assets", express.static(assetsDir));
 app.use("/css", express.static(cssDir));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+// parse form bodies with method override support
+app.use((req, _res, next) => {
+  if (req.body && typeof req.body === "object" && "_method" in req.body) {
+    req.method = req.body._method.toUpperCase();
+    delete req.body._method;
+  }
+  next();
+});
 
 app.use("/", homeRouter);
 

@@ -24,6 +24,8 @@
           {{ forms.formField('author', 'Author', 'text', post.author) }}
           {{ forms.formField('teaser', 'Teaser', 'text', post.teaser) }}
           {{ forms.formField('content', 'Content', 'text', post.content) }}
+          {{ forms.formField('createdAt', '', 'hidden', post.createdAt) }}
+          {{ forms.formField('_method', '', 'hidden', "PUT") }}
 
           <br />
 

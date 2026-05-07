@@ -4,10 +4,10 @@ import {
   loadPosts,
   addViewMetadata,
   Post,
-  addPost,
-  findPostBySlug,
-  updatePost as savePostChanges,
-  deletePost as removePost,
+  findPostById,
+  updateBlogEntry,
+  deleteBlogEntry,
+  createBlogEntry,
 } from "../models/postModel.js";
 
 const allowedContentTags = [
@@ -81,16 +81,16 @@ export async function createNewPost(req: Request, res: Response) {
     createdAt: Math.floor(Date.now() / 1000),
   } as Post;
 
-  await addPost(newPost);
+  await createBlogEntry(newPost);
 
   res.redirect("/admin");
 }
 
 export async function showEditPostForm(
-  req: Request<{ slug: string }>,
+  req: Request<{ id: number }>,
   res: Response,
 ) {
-  const post = await findPostBySlug(req.params.slug);
+  const post = await findPostById(req.params.id);
 
   if (!post) {
     res.status(404).send("Post not found");
@@ -99,39 +99,44 @@ export async function showEditPostForm(
 
   res.render("postForm.html", {
     formTitle: "Edit Post",
-    formAction: `/admin/posts/${req.params.slug}`,
+    formAction: `/admin/posts/${req.params.id}`,
     submitLabel: "Save",
     post,
   });
 }
 
-export async function updatePost(
-  req: Request<{ slug: string }>,
-  res: Response,
-) {
-  const { title, image, author, teaser, content } = req.body;
+export async function updatePost(req: Request<{ id: number }>, res: Response) {
+  const { title, image, author, teaser, content, createdAt } = req.body;
 
-  if (!title || !image || !author || !teaser || !content) {
+  if (!title || !image || !author || !teaser || !content || !createdAt) {
     res.status(400).send("All fields are required.");
     return;
   }
 
-  await savePostChanges(req.params.slug, {
-    title,
-    image,
-    author,
-    teaser,
-    content: sanitizePostContent(content),
-  });
+  try {
+    await updateBlogEntry(req.params.id, {
+      title,
+      image,
+      author,
+      teaser,
+      content: sanitizePostContent(content),
+      createdAt,
+    });
+  } catch (err) {
+    console.error("Error updating post:", err);
+    res.status(500).send("Error updating post");
+    return;
+  }
 
   res.redirect("/admin");
 }
 
-export async function deletePost(
-  req: Request<{ slug: string }>,
-  res: Response,
-) {
-  await removePost(req.params.slug);
-
-  res.redirect("/admin");
+export async function deletePost(req: Request<{ id: number }>, res: Response) {
+  try {
+    await deleteBlogEntry(req.params.id);
+    res.redirect("/admin");
+  } catch (err) {
+    console.error("Error deleting post:", err);
+    res.status(500).send("Error deleting post");
+  }
 }

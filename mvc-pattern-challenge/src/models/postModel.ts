@@ -10,7 +10,7 @@ import { getDB } from "../db/database";
 */
 
 export interface Post {
-  id?: number;
+  id: number;
   title: string;
   image: string;
   author: string;
@@ -44,7 +44,7 @@ export async function findPostBySlug(slug: string): Promise<Post | undefined> {
   return posts.find((post) => slugify(post.title) === slug);
 }
 
-export async function findPostById(id: string): Promise<Post | undefined> {
+export async function findPostById(id: number): Promise<Post | undefined> {
   const db = getDB();
   return await db.get<Post>("SELECT * FROM blog_entries WHERE id = ?", id);
 }
@@ -77,64 +77,47 @@ export function addViewMetadata(
   }));
 }
 
-export async function addPost(post: Post): Promise<void> {
+export async function createBlogEntry(
+  entry: Omit<Post, "id">,
+): Promise<number> {
   const db = getDB();
-  await db.run(
-    `
-      INSERT INTO blog_entries (title, teaser, author, createdAt, image, content)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `,
-    post.title,
-    post.teaser,
-    post.author,
-    post.createdAt,
-    post.image,
-    post.content,
+  const result = await db.run(
+    `INSERT INTO blog_entries (title, teaser, author, createdAt, image, content)
+     VALUES (@title, @teaser, @author, @createdAt, @image, @content)`,
+    {
+      "@title": entry.title,
+      "@teaser": entry.teaser,
+      "@author": entry.author,
+      "@createdAt": entry.createdAt,
+      "@image": entry.image,
+      "@content": entry.content,
+    },
   );
+  return result.lastID!;
 }
 
-export async function updatePost(
-  slug: string,
-  changes: Partial<Post>,
+export async function updateBlogEntry(
+  id: number,
+  entry: Omit<Post, "id">,
 ): Promise<void> {
   const db = getDB();
-  const existingPost = await findPostBySlug(slug);
-
-  if (!existingPost || existingPost.id === undefined) {
-    return;
-  }
-
-  const updatedPost = {
-    ...existingPost,
-    ...changes,
-  };
-
   await db.run(
-    `
-      UPDATE blog_entries
-      SET title = ?, teaser = ?, author = ?, createdAt = ?, image = ?, content = ?
-      WHERE id = ?
-    `,
-    updatedPost.title,
-    updatedPost.teaser,
-    updatedPost.author,
-    updatedPost.createdAt,
-    updatedPost.image,
-    updatedPost.content,
-    existingPost.id,
+    `UPDATE blog_entries
+     SET title = @title, teaser = @teaser, author = @author, createdAt = @createdAt, image = @image, content = @content
+     WHERE id = @id`,
+    {
+      "@title": entry.title,
+      "@teaser": entry.teaser,
+      "@author": entry.author,
+      "@createdAt": entry.createdAt,
+      "@image": entry.image,
+      "@content": entry.content,
+      "@id": id,
+    },
   );
 }
 
-export async function deletePost(slug: string): Promise<void> {
+export async function deleteBlogEntry(id: number): Promise<void> {
   const db = getDB();
-  const post = await findPostBySlug(slug);
-
-  if (!post || post.id === undefined) {
-    return;
-  }
-
-  await db.run(
-    "DELETE FROM blog_entries WHERE id = ?",
-    post.id,
-  );
+  await db.run(`DELETE FROM blog_entries WHERE id = @id`, { "@id": id });
 }
