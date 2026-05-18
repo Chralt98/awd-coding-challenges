@@ -1,0 +1,17 @@
+{
+  "name": "software-design-fundamentals",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "bun --hot --port 3000 index.html"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsx": "^4.22.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
