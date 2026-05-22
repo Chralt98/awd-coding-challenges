@@ -1,49 +1,59 @@
 import { Injectable } from "@nestjs/common";
+import { UserRepository } from "./users.repository";
 import { User } from ".interfaces/user.interface";
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: "1", name: "Alice", email: "alice@example.com" },
-    { id: "2", name: "Bob", email: "bob@example.com" },
-  ];
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly postRepository: PostRepository,
+    private readonly sessionRepository: SessionRepository,
+  )
 
   getAllUsers(): User[] {
-    return [...this.users];
+    return this.userRepository.findAll();
   }
 
   getUserById(id: string): User | undefined {
-    return this.users.find((user) => user.id === id);
+    return this.userRepository.findById(id);
   }
 
   getRandomUser(): User {
-    const randomIndex = Math.floor(Math.random() * this.users.length);
-    return this.users[randomIndex];
+    return this.userRepository.getRandom();
   }
 
   insertUser(name: string, email: string): User {
-    const user: User = { id: Date.now().toString(), name, email };
-    this.users.push(user);
-    return user;
+    if (!name || name.trim().length < 2) {
+        throw new ValidationError("Name must be at least 2 characters");
+    }
+
+    if (!isValidEmail(email)) {
+        throw new ValidationError("Invalid email format");
+    }
+
+    const existing = this.userRepository.findByEmail(email);
+    if (existing) {
+        throw new ConflictError(`User with email ${email} already exists`);
+    }
+
+    return this.userRepository.create({ name, email });
   }
 
   updateUser(id: string, name?: string, email?: string): User | undefined {
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index === -1) {
-      return undefined;
+    if (name && name.trim().length < 2) {
+        throw new ValidationError("Invalid name format");
     }
-    if (name !== undefined) {
-      this.users[index].name = name;
+
+    if (email && !isValidEmail(email)) {
+        throw new ValidationError("Invalid email format");
     }
-    if (email !== undefined) {
-      this.users[index].email = email;
-    }
-    return this.users[index];
+
+    return this.userRepository.update(id, { name, email });
   }
 
   deleteUser(id: string): boolean {
-    const before = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-    return this.users.length < before;
+    this.postRepository.deleteByAuthor(id);
+    this.sessionRepository.deleteByUser(id);
+    return this.userRepository.delete(id);
   }
 }
