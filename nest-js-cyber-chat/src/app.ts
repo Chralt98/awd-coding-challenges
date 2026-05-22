@@ -1,5 +1,6 @@
 import { Module, Injectable, Get, Controller } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { UsersModule } from "./users/users.module";
 
 @Injectable()
 class AppService {
@@ -19,6 +20,7 @@ class AppController {
 }
 
 @Module({
+  imports: [UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
