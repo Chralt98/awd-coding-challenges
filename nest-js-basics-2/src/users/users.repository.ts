@@ -16,6 +16,11 @@ export class UserRepository {
     return this.users.find((user) => user.id === id);
   }
 
+  getRandom(): User {
+    const randomIndex = Math.floor(Math.random() * this.users.length);
+    return this.users[randomIndex];
+  }
+
   create(data: UserPayload): User {
     const user: User = { id: Date.now().toString(), ...data };
     this.users.push(user);
