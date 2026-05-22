@@ -7,7 +7,9 @@
     "dev": "bun --watch src/app.ts"
   },
   "devDependencies": {
+    "@nestjs/testing": "^11.1.23",
     "@types/bun": "latest",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.9.1",
     "ts-node": "^10.9.2"
   },
