@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-type Comment = {
+export type Comment = {
   id: number;
   author: string;
   body: string;
