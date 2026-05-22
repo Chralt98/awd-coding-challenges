@@ -1,6 +1,7 @@
 import { Module, Injectable, Get, Controller } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { UsersModule } from "./users/users.module";
+import { ProductsModule } from "./products/products.module";
 
 @Injectable()
 class AppService {
@@ -20,7 +21,7 @@ class AppController {
 }
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, ProductsModule],
   controllers: [AppController],
   providers: [AppService],
 })
