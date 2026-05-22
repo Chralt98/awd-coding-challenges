@@ -1,4 +1,4 @@
-# nest-js-cyber-chat
+# nest-js-basics-2
 
 To install dependencies:
 
