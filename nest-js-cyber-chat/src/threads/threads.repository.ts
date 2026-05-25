@@ -25,10 +25,12 @@ export class ThreadsRepository {
     const thread: Thread = {
       id,
       title,
-      author,
+      // TODO: Where does the author come from? For now, we'll just use a placeholder.
+      author: 'Anonymous',
       body,
-      createdAt: Date.now(),
+      createdAt: new Date(),
     };
-    this.threads.set(id, thread);
+    this.threads.set(id.toString(), thread);
+    return thread;
   }
 }

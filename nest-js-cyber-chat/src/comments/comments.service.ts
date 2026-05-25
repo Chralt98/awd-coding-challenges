@@ -1,7 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from './comments.repository';
+import type { Comment } from './comments.repository';
 
 @Injectable()
 export class CommentsService {
   constructor(private readonly commentsRepository: CommentsRepository) {}
+
+  getAll(): Map<string, Comment> {
+    return this.commentsRepository.getAll();
+  }
+
+  getById(id: string): Comment | undefined {
+    return this.commentsRepository.getById(id);
+  }
+
+  add(author: string, body: string): Comment {
+    return this.commentsRepository.add(author, body);
+  }
 }

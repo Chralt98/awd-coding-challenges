@@ -9,6 +9,7 @@ import {
 import { ThreadsService } from './threads.service';
 import type { Comment } from '../comments/comments.repository';
 import type { Thread } from './threads.repository';
+import { AddCommentDto } from '../comments/dto/add-comment.dto';
 
 @Controller('threads')
 export class ThreadsController {
@@ -20,7 +21,7 @@ export class ThreadsController {
   }
 
   @Get()
-  getAll(): Thread[] {
+  getAll(): Map<string, Thread> {
     return this.threadsService.getAll();
   }
 
@@ -37,5 +38,15 @@ export class ThreadsController {
   addComment(
     @Param('id') threadId: string,
     @Body() dto: AddCommentDto,
-  ): Thread {}
+  ): Comment {
+    const thread = this.threadsService.getById(threadId);
+    if (!thread) {
+      throw new NotFoundException(`Thread with id ${threadId} not found`);
+    }
+    return this.threadsService.addCommentForThread(
+      threadId,
+      dto.author,
+      dto.body,
+    );
+  }
 }
