@@ -7,7 +7,7 @@ import type { Comment } from './comments.repository';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Get()
+  @Get(':id')
   getOne(@Param('id') id: string): Comment {
     const comment = this.commentsService.getById(id);
     if (!comment) {
