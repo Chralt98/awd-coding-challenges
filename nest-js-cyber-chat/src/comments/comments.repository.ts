@@ -42,4 +42,13 @@ export class CommentsRepository {
   delete(id: string): boolean {
     return this.comments.delete(id);
   }
+
+  deleteBody(id: string): boolean {
+    const comment = this.comments.get(id);
+    if (comment) {
+      comment.body = 'deleted';
+      return true;
+    }
+    return false;
+  }
 }

@@ -25,4 +25,8 @@ export class CommentsService {
   delete(id: string): boolean {
     return this.commentsRepository.delete(id);
   }
+
+  deleteBody(id: string): boolean {
+    return this.commentsRepository.deleteBody(id);
+  }
 }
