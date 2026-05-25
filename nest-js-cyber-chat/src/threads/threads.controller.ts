@@ -27,12 +27,13 @@ export class ThreadsController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string): Thread {
+  getOne(@Param('id') id: string): Thread & { comments: Comment[] } {
     const thread = this.threadsService.getById(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    return thread;
+    const comments = this.threadsService.getCommentsForThread(id);
+    return { ...thread, comments };
   }
 
   @Post(':id/comments')

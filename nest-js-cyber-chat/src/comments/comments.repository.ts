@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 export type Comment = {
   id: number;
+  threadId: string;
   author: string;
   body: string;
   createdAt: Date;
@@ -19,15 +20,22 @@ export class CommentsRepository {
     return this.comments.get(id);
   }
 
-  add(author: string, body: string): Comment {
+  add(threadId: string, author: string, body: string): Comment {
     const id = this.comments.size + 1;
     const comment: Comment = {
       id,
+      threadId,
       author,
       body,
       createdAt: new Date(),
     };
     this.comments.set(id.toString(), comment);
     return comment;
+  }
+
+  getAllForThread(threadId: string): Comment[] {
+    return Array.from(this.comments.values()).filter(
+      (comment) => comment.threadId === threadId,
+    );
   }
 }

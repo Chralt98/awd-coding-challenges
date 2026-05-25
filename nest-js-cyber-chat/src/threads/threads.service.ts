@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ThreadsRepository } from './threads.repository';
 import { Thread } from './threads.repository';
 import { CommentsService } from '../comments/comments.service';
+import type { Comment } from '../comments/comments.repository';
 
 @Injectable()
 export class ThreadsService {
@@ -22,11 +23,19 @@ export class ThreadsService {
     return this.threadsRepository.create(title, body);
   }
 
-  addCommentForThread(threadId: string, author: string, body: string) {
+  addCommentForThread(threadId: string, author: string, body: string): Comment {
     const thread = this.threadsRepository.getById(threadId);
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
-    return this.commentsService.add(author, body);
+    return this.commentsService.add(threadId, author, body);
+  }
+
+  getCommentsForThread(threadId: string) {
+    const thread = this.threadsRepository.getById(threadId);
+    if (!thread) {
+      throw new Error(`Thread with id ${threadId} not found`);
+    }
+    return this.commentsService.getAllForThread(threadId);
   }
 }

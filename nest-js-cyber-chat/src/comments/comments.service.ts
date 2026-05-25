@@ -14,7 +14,11 @@ export class CommentsService {
     return this.commentsRepository.getById(id);
   }
 
-  add(author: string, body: string): Comment {
-    return this.commentsRepository.add(author, body);
+  add(threadId: string, author: string, body: string): Comment {
+    return this.commentsRepository.add(threadId, author, body);
+  }
+
+  getAllForThread(threadId: string): Comment[] {
+    return this.commentsRepository.getAllForThread(threadId);
   }
 }
