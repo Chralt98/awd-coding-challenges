@@ -38,4 +38,12 @@ export class ThreadsService {
     }
     return this.commentsService.getAllForThread(threadId);
   }
+
+  delete(id: string): boolean {
+    this.commentsService.getAllForThread(id).forEach((comment) => {
+      this.commentsService.delete(comment.id.toString());
+    });
+
+    return this.threadsRepository.delete(id);
+  }
 }

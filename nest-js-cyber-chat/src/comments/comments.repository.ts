@@ -38,4 +38,8 @@ export class CommentsRepository {
       (comment) => comment.threadId === threadId,
     );
   }
+
+  delete(id: string): boolean {
+    return this.comments.delete(id);
+  }
 }

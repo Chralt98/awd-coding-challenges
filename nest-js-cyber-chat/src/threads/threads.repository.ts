@@ -33,4 +33,8 @@ export class ThreadsRepository {
     this.threads.set(id.toString(), thread);
     return thread;
   }
+
+  delete(id: string): boolean {
+    return this.threads.delete(id);
+  }
 }

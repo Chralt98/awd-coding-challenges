@@ -21,4 +21,8 @@ export class CommentsService {
   getAllForThread(threadId: string): Comment[] {
     return this.commentsRepository.getAllForThread(threadId);
   }
+
+  delete(id: string): boolean {
+    return this.commentsRepository.delete(id);
+  }
 }

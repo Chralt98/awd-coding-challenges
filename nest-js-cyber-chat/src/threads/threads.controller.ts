@@ -5,6 +5,7 @@ import {
   Post,
   Get,
   NotFoundException,
+  Delete,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import type { Comment } from '../comments/comments.repository';
@@ -50,5 +51,14 @@ export class ThreadsController {
       dto.author,
       dto.body,
     );
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string): void {
+    const thread = this.threadsService.getById(id);
+    if (!thread) {
+      throw new NotFoundException(`Thread with id ${id} not found`);
+    }
+    this.threadsService.delete(id);
   }
 }
