@@ -9,6 +9,7 @@ import {
 import { ThreadsService } from './threads.service';
 import type { Comment } from '../comments/comments.repository';
 import type { Thread } from './threads.repository';
+import { CreateThreadDto } from './dto/create-thread.dto';
 import { AddCommentDto } from '../comments/dto/add-comment.dto';
 
 @Controller('threads')
@@ -16,12 +17,12 @@ export class ThreadsController {
   constructor(private readonly threadsService: ThreadsService) {}
 
   @Post()
-  create(@Param('title') title: string, @Body() body: string): Thread {
-    return this.threadsService.create(title, body);
+  create(@Body() dto: CreateThreadDto): Thread {
+    return this.threadsService.create(dto.title, dto.body);
   }
 
   @Get()
-  getAll(): Map<string, Thread> {
+  getAll(): Thread[] {
     return this.threadsService.getAll();
   }
 

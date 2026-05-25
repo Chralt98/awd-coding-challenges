@@ -10,7 +10,7 @@ export class ThreadsService {
     private readonly commentsService: CommentsService,
   ) {}
 
-  getAll(): Map<string, Thread> {
+  getAll(): Thread[] {
     return this.threadsRepository.getAll();
   }
 

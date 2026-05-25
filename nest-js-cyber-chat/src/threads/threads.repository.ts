@@ -12,8 +12,8 @@ export type Thread = {
 export class ThreadsRepository {
   private threads: Map<string, Thread> = new Map();
 
-  getAll(): Map<string, Thread> {
-    return this.threads;
+  getAll(): Thread[] {
+    return Array.from(this.threads.values());
   }
 
   getById(id: string): Thread | undefined {
