@@ -13,7 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     CommentsModule,
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
-      database: '/data/db.sqlite',
+      database: './data/db.sqlite',
       entities: [],
       synchronize: true,
       logging: false,
