@@ -10,26 +10,26 @@ export class ThreadsService {
   constructor(
     private readonly commentsService: CommentsService,
     @InjectRepository(Thread)
-    private readonly threadsRepository: Repository<Thread>,
+    private readonly threads: Repository<Thread>,
   ) {}
 
   async getAll(): Promise<Thread[]> {
-    return this.threadsRepository.find({
+    return this.threads.find({
       order: { createdAt: 'DESC' },
     });
   }
 
   async getById(id: string): Promise<Thread | null> {
-    return this.threadsRepository.findOneBy({ id });
+    return this.threads.findOneBy({ id });
   }
 
   async create(title: string, body: string): Promise<Thread> {
-    const thread = this.threadsRepository.create({
+    const thread = this.threads.create({
       title,
       body,
       author: 'Anonymous',
     });
-    return this.threadsRepository.save(thread);
+    return this.threads.save(thread);
   }
 
   async addCommentForThread(
@@ -37,7 +37,7 @@ export class ThreadsService {
     author: string,
     body: string,
   ): Promise<Comment> {
-    const thread = await this.threadsRepository.findOneBy({ id: threadId });
+    const thread = await this.threads.findOneBy({ id: threadId });
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
@@ -45,7 +45,7 @@ export class ThreadsService {
   }
 
   async getCommentsForThread(threadId: string) {
-    const thread = await this.threadsRepository.findOneBy({ id: threadId });
+    const thread = await this.threads.findOneBy({ id: threadId });
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
@@ -53,12 +53,12 @@ export class ThreadsService {
   }
 
   async delete(id: string): Promise<DeleteResult> {
-    const thread = await this.threadsRepository.findOneBy({ id });
+    const thread = await this.threads.findOneBy({ id });
     if (!thread) {
       throw new Error(`Thread with id ${id} not found`);
     }
     thread.comments = [];
-    await this.threadsRepository.save(thread);
-    return this.threadsRepository.delete(id);
+    await this.threads.save(thread);
+    return this.threads.delete(id);
   }
 }

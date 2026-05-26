@@ -7,37 +7,37 @@ import { Comment } from './comments.entity';
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
-    private readonly commentsRepository: Repository<Comment>,
+    private readonly comments: Repository<Comment>,
   ) {}
 
   async getAll(): Promise<Comment[]> {
-    return this.commentsRepository.find({
+    return this.comments.find({
       order: { createdAt: 'DESC' },
     });
   }
 
   async getById(id: string): Promise<Comment | null> {
-    return this.commentsRepository.findOne({ where: { id } });
+    return this.comments.findOne({ where: { id } });
   }
 
   async add(threadId: string, author: string, body: string): Promise<Comment> {
-    const comment = this.commentsRepository.create({
+    const comment = this.comments.create({
       thread: { id: threadId },
       author,
       body,
     });
-    return this.commentsRepository.save(comment);
+    return this.comments.save(comment);
   }
 
   async getAllForThread(threadId: string): Promise<Comment[]> {
-    return this.commentsRepository.find({
+    return this.comments.find({
       where: { thread: { id: threadId } },
       order: { createdAt: 'DESC' },
     });
   }
 
   async delete(id: string): Promise<DeleteResult> {
-    return this.commentsRepository.delete(id);
+    return this.comments.delete(id);
   }
 
   async deleteBody(id: string): Promise<boolean> {
@@ -46,7 +46,7 @@ export class CommentsService {
       return false;
     }
     comment.body = '[deleted]';
-    await this.commentsRepository.save(comment);
+    await this.comments.save(comment);
     return true;
   }
 }
