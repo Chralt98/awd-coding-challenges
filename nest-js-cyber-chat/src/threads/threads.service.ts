@@ -3,12 +3,17 @@ import { ThreadsRepository } from './threads.repository';
 import { Thread } from './threads.repository';
 import { CommentsService } from '../comments/comments.service';
 import type { Comment } from '../comments/comments.repository';
+import { Thread as ThreadEntity } from './threads.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ThreadsService {
   constructor(
     private readonly threadsRepository: ThreadsRepository,
     private readonly commentsService: CommentsService,
+    @InjectRepository(ThreadEntity)
+    private readonly threadRepository: Repository<ThreadEntity>,
   ) {}
 
   getAll(): Thread[] {
