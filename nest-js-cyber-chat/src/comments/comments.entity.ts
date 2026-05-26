@@ -21,6 +21,6 @@ export class Comment {
   @Column({ type: 'text' })
   body!: string;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt!: Date;
 }
