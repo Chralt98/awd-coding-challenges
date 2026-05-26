@@ -3,8 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ThreadsModule } from './threads/threads.module';
 import { CommentsModule } from './comments/comments.module';
-import { ThreadsRepository } from './threads/threads.repository';
-import { CommentsRepository } from './comments/comments.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -22,6 +20,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, ThreadsRepository, CommentsRepository],
+  providers: [AppService],
 })
 export class AppModule {}

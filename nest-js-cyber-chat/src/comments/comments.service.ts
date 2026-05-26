@@ -1,39 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { CommentsRepository } from './comments.repository';
-import type { Comment } from './comments.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Comment as CommentEntity } from './comments.entity';
+import { Repository, DeleteResult } from 'typeorm';
+import { Comment } from './comments.entity';
 
 @Injectable()
 export class CommentsService {
   constructor(
-    private readonly commentsRepository: CommentsRepository,
-    @InjectRepository(CommentEntity)
-    private readonly commentRepository: Repository<CommentEntity>,
+    @InjectRepository(Comment)
+    private readonly commentsRepository: Repository<Comment>,
   ) {}
 
-  getAll(): Map<string, Comment> {
-    return this.commentsRepository.getAll();
+  async getAll(): Promise<Comment[]> {
+    return this.commentsRepository.find({
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  getById(id: string): Comment | undefined {
-    return this.commentsRepository.getById(id);
+  async getById(id: string): Promise<Comment | null> {
+    return this.commentsRepository.findOne({ where: { id } });
   }
 
-  add(threadId: string, author: string, body: string): Comment {
-    return this.commentsRepository.add(threadId, author, body);
+  async add(threadId: string, author: string, body: string): Promise<Comment> {
+    const comment = this.commentsRepository.create({
+      thread: { id: threadId },
+      author,
+      body,
+    });
+    return this.commentsRepository.save(comment);
   }
 
-  getAllForThread(threadId: string): Comment[] {
-    return this.commentsRepository.getAllForThread(threadId);
+  async getAllForThread(threadId: string): Promise<Comment[]> {
+    return this.commentsRepository.find({
+      where: { thread: { id: threadId } },
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  delete(id: string): boolean {
+  async delete(id: string): Promise<DeleteResult> {
     return this.commentsRepository.delete(id);
   }
 
-  deleteBody(id: string): boolean {
-    return this.commentsRepository.deleteBody(id);
+  async deleteBody(id: string): Promise<boolean> {
+    const comment = await this.getById(id);
+    if (!comment) {
+      return false;
+    }
+    comment.body = '[deleted]';
+    await this.commentsRepository.save(comment);
+    return true;
   }
 }

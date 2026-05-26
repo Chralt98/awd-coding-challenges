@@ -8,8 +8,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
-import type { Comment } from '../comments/comments.repository';
-import type { Thread } from './threads.repository';
+import type { Comment } from '../comments/comments.entity';
+import type { Thread } from './threads.entity';
 import { CreateThreadDto } from './dto/create-thread.dto';
 import { AddCommentDto } from '../comments/dto/add-comment.dto';
 
@@ -18,31 +18,33 @@ export class ThreadsController {
   constructor(private readonly threadsService: ThreadsService) {}
 
   @Post()
-  create(@Body() dto: CreateThreadDto): Thread {
+  async create(@Body() dto: CreateThreadDto): Promise<Thread> {
     return this.threadsService.create(dto.title, dto.body);
   }
 
   @Get()
-  getAll(): Thread[] {
+  async getAll(): Promise<Thread[]> {
     return this.threadsService.getAll();
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string): Thread & { comments: Comment[] } {
-    const thread = this.threadsService.getById(id);
+  async getOne(
+    @Param('id') id: string,
+  ): Promise<Thread & { comments: Comment[] }> {
+    const thread = await this.threadsService.getById(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    const comments = this.threadsService.getCommentsForThread(id);
+    const comments = await this.threadsService.getCommentsForThread(id);
     return { ...thread, comments };
   }
 
   @Post(':id/comments')
-  addComment(
+  async addComment(
     @Param('id') threadId: string,
     @Body() dto: AddCommentDto,
-  ): Comment {
-    const thread = this.threadsService.getById(threadId);
+  ): Promise<Comment> {
+    const thread = await this.threadsService.getById(threadId);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${threadId} not found`);
     }
@@ -54,11 +56,11 @@ export class ThreadsController {
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string): void {
-    const thread = this.threadsService.getById(id);
+  async delete(@Param('id') id: string): Promise<void> {
+    const thread = await this.threadsService.getById(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    this.threadsService.delete(id);
+    await this.threadsService.delete(id);
   }
 }

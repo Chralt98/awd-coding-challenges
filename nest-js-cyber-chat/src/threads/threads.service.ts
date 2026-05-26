@@ -1,54 +1,64 @@
 import { Injectable } from '@nestjs/common';
-import { ThreadsRepository } from './threads.repository';
-import { Thread } from './threads.repository';
 import { CommentsService } from '../comments/comments.service';
-import type { Comment } from '../comments/comments.repository';
-import { Thread as ThreadEntity } from './threads.entity';
-import { Repository } from 'typeorm';
+import type { Comment } from '../comments/comments.entity';
+import { Thread } from './threads.entity';
+import { Repository, DeleteResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ThreadsService {
   constructor(
-    private readonly threadsRepository: ThreadsRepository,
     private readonly commentsService: CommentsService,
-    @InjectRepository(ThreadEntity)
-    private readonly threadRepository: Repository<ThreadEntity>,
+    @InjectRepository(Thread)
+    private readonly threadsRepository: Repository<Thread>,
   ) {}
 
-  getAll(): Thread[] {
-    return this.threadsRepository.getAll();
+  async getAll(): Promise<Thread[]> {
+    return this.threadsRepository.find({
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  getById(id: string): Thread | undefined {
-    return this.threadsRepository.getById(id);
+  async getById(id: string): Promise<Thread | null> {
+    return this.threadsRepository.findOneBy({ id });
   }
 
-  create(title: string, body: string): Thread {
-    return this.threadsRepository.create(title, body);
+  async create(title: string, body: string): Promise<Thread> {
+    const thread = this.threadsRepository.create({
+      title,
+      body,
+      author: 'Anonymous',
+    });
+    return this.threadsRepository.save(thread);
   }
 
-  addCommentForThread(threadId: string, author: string, body: string): Comment {
-    const thread = this.threadsRepository.getById(threadId);
+  async addCommentForThread(
+    threadId: string,
+    author: string,
+    body: string,
+  ): Promise<Comment> {
+    const thread = await this.threadsRepository.findOneBy({ id: threadId });
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
     return this.commentsService.add(threadId, author, body);
   }
 
-  getCommentsForThread(threadId: string) {
-    const thread = this.threadsRepository.getById(threadId);
+  async getCommentsForThread(threadId: string) {
+    const thread = await this.threadsRepository.findOneBy({ id: threadId });
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
     return this.commentsService.getAllForThread(threadId);
   }
 
-  delete(id: string): boolean {
-    this.commentsService.getAllForThread(id).forEach((comment) => {
-      this.commentsService.delete(comment.id.toString());
-    });
-
+  async delete(id: string): Promise<DeleteResult> {
+    const thread = await this.threadsRepository.findOneBy({ id });
+    if (!thread) {
+      throw new Error(`Thread with id ${id} not found`);
+    }
+    thread.comments = [];
+    await this.threadsRepository.save(thread);
     return this.threadsRepository.delete(id);
   }
 }
