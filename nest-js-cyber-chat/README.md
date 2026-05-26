@@ -74,6 +74,49 @@ type Comment = {
 
 - Throw a proper `NotFoundException` when a thread doesn’t exist.
 
+### NestJS TypeORM - Challenges
+#### Cyber Chat - Add a Persistent Storage
+
+Until now, Cyber Chat has relied on in-memory arrays. Every time you restart the development server, all threads and comments vanish. In this challenge, you will rip out those volatile repositories and wire the application to a real, persistent SQLite database.
+
+#### 1. The Foundation
+
+- Bring the `SQLite` driver and `TypeORM` dependencies into your existing `Cyber Chat` project.
+- Configure the connection in your root `AppModule`.
+- Create a new `SQLite` database file.
+
+#### 2. Modeling the Domain
+
+Translate your domain into `TypeORM` entities. You will need a `Thread` and a `Comment`. The requirements for the `Thread` entity could be:
+
+- A `UUID` primary key.
+- A standard string `title` and a `text` body.
+- An auto-managed `createdAt` timestamp.
+- A simple string `author` (a placeholder for a future user system).
+
+Design the `Comment` entity.
+
+Hint:
+
+#### 3. The Repository Swap
+
+- Delete your custom in-memory repository classes. They are obsolete.
+- Update your `ThreadService` and `CommentService` to inject TypeORM’s generic `Repository`.
+- Refactor your business logic to use the database methods instead of array manipulation.
+
+#### 4. The Initial Migration (Optional)
+
+- Disable `synchronize`.
+- Set up your `src/data-source.ts` file and add the `TypeORM CLI` scripts to your `package.json`.
+- Generate your first schema migration, review the generated SQL, and execute the run command to build your database tables.
+
+#### Acceptance Criteria
+
+- Persistence: You can create a `Thread` via a `POST` request, restart your `NestJS` server, make a `GET` request, and the `Thread` is still there.
+- Relational Integrity: Fetching a `Thread` by its `ID` successfully returns the `Thread` along with its associated array of `Comments`.
+- Clean Services: Your service classes contain no raw SQL strings and no manual array-filtering logic (`.filter`, `.push`). All data manipulation is delegated to the `ORM`.
+- Migration Verification: A generated migration file exists in `src/migrations`, and the `CLI` reports it as successfully applied.
+
 ## Project setup
 
 ```bash

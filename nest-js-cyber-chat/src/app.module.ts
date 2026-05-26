@@ -5,9 +5,22 @@ import { ThreadsModule } from './threads/threads.module';
 import { CommentsModule } from './comments/comments.module';
 import { ThreadsRepository } from './threads/threads.repository';
 import { CommentsRepository } from './comments/comments.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [ThreadsModule, CommentsModule],
+  imports: [
+    ThreadsModule,
+    CommentsModule,
+    TypeOrmModule.forRoot({
+      type: 'better-sqlite3',
+      database: '/data/db.sqlite',
+      entities: [],
+      synchronize: true,
+      logging: false,
+      enableWAL: true,
+      statementCacheSize: 100,
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService, ThreadsRepository, CommentsRepository],
 })
