@@ -1,6 +1,6 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
-export class CreateUserResponseDto {
+export class UserResponseDto {
   @Expose()
   id!: string;
 
