@@ -8,9 +8,11 @@ import { Thread } from './threads/threads.entity';
 import { Comment } from './comments/comments.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     ThreadsModule,
     CommentsModule,
     TypeOrmModule.forRoot({
