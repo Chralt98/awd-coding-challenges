@@ -6,6 +6,7 @@ import { CommentsModule } from './comments/comments.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Thread } from './threads/threads.entity';
 import { Comment } from './comments/comments.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Comment } from './comments/comments.entity';
       enableWAL: true,
       statementCacheSize: 100,
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
