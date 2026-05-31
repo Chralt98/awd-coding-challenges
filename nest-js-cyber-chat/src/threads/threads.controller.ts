@@ -11,7 +11,7 @@ import { ThreadsService } from './threads.service';
 import type { Comment } from '../comments/comments.entity';
 import type { Thread } from './threads.entity';
 import { CreateThreadDto } from './dto/create-thread.dto';
-import { AddCommentDto } from '../comments/dto/add-comment.dto';
+import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 
 @Controller('threads')
 export class ThreadsController {
@@ -42,7 +42,7 @@ export class ThreadsController {
   @Post(':id/comments')
   async addComment(
     @Param('id') threadId: string,
-    @Body() dto: AddCommentDto,
+    @Body() dto: CreateCommentDto,
   ): Promise<Comment> {
     const thread = await this.threadsService.getById(threadId);
     if (!thread) {
