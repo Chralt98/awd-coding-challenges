@@ -77,10 +77,8 @@ export class ThreadsService {
   }
 
   async update(id: string, dto: UpdateThreadDto): Promise<ThreadResponseDto> {
-    const thread = await this.threads.findOneBy({ id });
-    if (!thread) {
-      throw new Error(`Thread with id ${id} not found`);
-    }
+    // controller already checks if thread exists
+    const thread = (await this.threads.findOneBy({ id }))!;
     thread.title = dto.title ?? thread.title;
     thread.body = dto.body ?? thread.body;
     const savedThread = await this.threads.save(thread);
@@ -93,19 +91,13 @@ export class ThreadsService {
     threadId: string,
     dto: CreateCommentDto,
   ): Promise<CommentResponseDto> {
-    const thread = await this.threads.findOneBy({ id: threadId });
-    if (!thread) {
-      throw new Error(`Thread with id ${threadId} not found`);
-    }
     const { author, body } = dto;
     return this.commentsService.add(threadId, author, body);
   }
 
   async delete(id: string): Promise<DeleteResult> {
-    const thread = await this.threads.findOneBy({ id });
-    if (!thread) {
-      throw new Error(`Thread with id ${id} not found`);
-    }
+    // controller already checks if thread exists
+    const thread = (await this.threads.findOneBy({ id }))!;
     thread.comments = [];
     await this.threads.save(thread);
     return this.threads.delete(id);
