@@ -11,11 +11,9 @@ import {
 import { ThreadsService } from './threads.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
 import { CreateCommentDto } from '../comments/dto/create-comment.dto';
-import { CommentResponseDto } from '../comments/dto/comment-response.dto';
 import { UpdateThreadDto } from './dto/update-thread.dto';
+import { CommentResponseDto } from '../comments/dto/comment-response.dto';
 import { ThreadResponseDto } from './dto/thread-response.dto';
-import { toThreadResponseDto } from './mappers/thread-response.mapper';
-import { toCommentResponseDto } from '../comments/mappers/comment-response.mapper';
 
 @Controller('threads')
 export class ThreadsController {
@@ -23,14 +21,12 @@ export class ThreadsController {
 
   @Post()
   async create(@Body() dto: CreateThreadDto): Promise<ThreadResponseDto> {
-    const thread = await this.threadsService.create(dto.title, dto.body);
-    return toThreadResponseDto(thread);
+    return this.threadsService.create(dto.title, dto.body);
   }
 
   @Get()
   async getAll(): Promise<ThreadResponseDto[]> {
-    const threads = await this.threadsService.getAll();
-    return threads.map((thread) => toThreadResponseDto(thread));
+    return this.threadsService.getAll();
   }
 
   @Get(':id')
@@ -39,7 +35,7 @@ export class ThreadsController {
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    return toThreadResponseDto(thread);
+    return thread;
   }
 
   @Post(':id/comments')
@@ -51,11 +47,7 @@ export class ThreadsController {
     if (!thread) {
       throw new NotFoundException(`Thread with id ${threadId} not found`);
     }
-    const comment = await this.threadsService.addCommentForThread(
-      threadId,
-      dto,
-    );
-    return toCommentResponseDto(comment);
+    return this.threadsService.addCommentForThread(threadId, dto);
   }
 
   @Patch(':id')
@@ -67,12 +59,7 @@ export class ThreadsController {
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    await this.threadsService.update(id, dto);
-    const updatedThread = await this.threadsService.getByIdWithComments(id);
-    if (!updatedThread) {
-      throw new NotFoundException(`Thread with id ${id} not found`);
-    }
-    return toThreadResponseDto(updatedThread);
+    return this.threadsService.update(id, dto);
   }
 
   @Delete(':id')
