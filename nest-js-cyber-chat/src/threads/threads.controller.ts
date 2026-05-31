@@ -7,6 +7,8 @@ import {
   NotFoundException,
   Delete,
   Patch,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
@@ -63,6 +65,7 @@ export class ThreadsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string): Promise<void> {
     const thread = await this.threadsService.getById(id);
     if (!thread) {
