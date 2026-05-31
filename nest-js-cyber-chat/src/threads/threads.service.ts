@@ -4,6 +4,8 @@ import type { Comment } from '../comments/comments.entity';
 import { Thread } from './threads.entity';
 import { Repository, DeleteResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateCommentDto } from '../comments/dto/create-comment.dto';
+import { UpdateThreadDto } from './dto/update-thread.dto';
 
 @Injectable()
 export class ThreadsService {
@@ -32,15 +34,25 @@ export class ThreadsService {
     return this.threads.save(thread);
   }
 
+  async update(id: string, dto: UpdateThreadDto): Promise<Thread> {
+    const thread = await this.threads.findOneBy({ id });
+    if (!thread) {
+      throw new Error(`Thread with id ${id} not found`);
+    }
+    thread.title = dto.title ?? thread.title;
+    thread.body = dto.body ?? thread.body;
+    return this.threads.save(thread);
+  }
+
   async addCommentForThread(
     threadId: string,
-    author: string,
-    body: string,
+    dto: CreateCommentDto,
   ): Promise<Comment> {
     const thread = await this.threads.findOneBy({ id: threadId });
     if (!thread) {
       throw new Error(`Thread with id ${threadId} not found`);
     }
+    const { author, body } = dto;
     return this.commentsService.add(threadId, author, body);
   }
 
