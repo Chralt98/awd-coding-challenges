@@ -9,6 +9,7 @@ import {
   Patch,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
@@ -23,7 +24,7 @@ export class ThreadsController {
 
   @Post()
   async create(@Body() dto: CreateThreadDto): Promise<ThreadResponseDto> {
-    return this.threadsService.create(dto.title, dto.body);
+    return this.threadsService.create(dto);
   }
 
   @Get()
@@ -32,7 +33,9 @@ export class ThreadsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string): Promise<ThreadResponseDto> {
+  async getOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ThreadResponseDto> {
     const thread = await this.threadsService.getByIdWithComments(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
@@ -42,7 +45,7 @@ export class ThreadsController {
 
   @Post(':id/comments')
   async addComment(
-    @Param('id') threadId: string,
+    @Param('id', ParseUUIDPipe) threadId: string,
     @Body() dto: CreateCommentDto,
   ): Promise<CommentResponseDto> {
     const thread = await this.threadsService.getById(threadId);
@@ -54,7 +57,7 @@ export class ThreadsController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateThreadDto,
   ): Promise<ThreadResponseDto> {
     const thread = await this.threadsService.getById(id);
@@ -66,7 +69,7 @@ export class ThreadsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string): Promise<void> {
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     const thread = await this.threadsService.getById(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);

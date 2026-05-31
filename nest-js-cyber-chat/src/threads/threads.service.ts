@@ -8,6 +8,7 @@ import { UpdateThreadDto } from './dto/update-thread.dto';
 import { plainToInstance } from 'class-transformer';
 import { ThreadResponseDto } from './dto/thread-response.dto';
 import { CommentResponseDto } from '../comments/dto/comment-response.dto';
+import { CreateThreadDto } from './dto/create-thread.dto';
 
 @Injectable()
 export class ThreadsService {
@@ -64,11 +65,11 @@ export class ThreadsService {
     );
   }
 
-  async create(title: string, body: string): Promise<ThreadResponseDto> {
+  async create(dto: CreateThreadDto): Promise<ThreadResponseDto> {
     const thread = this.threads.create({
-      title,
-      body,
-      author: 'Anonymous',
+      title: dto.title,
+      body: dto.body,
+      author: dto.author,
     });
     const savedThread = await this.threads.save(thread);
     return plainToInstance(ThreadResponseDto, savedThread, {
