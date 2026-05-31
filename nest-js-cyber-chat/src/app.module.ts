@@ -9,6 +9,7 @@ import { Comment } from './comments/comments.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { User } from './users/users.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
       database: './data/db.sqlite',
-      entities: [Thread, Comment],
+      entities: [Thread, Comment, User],
       synchronize: true,
       logging: false,
       enableWAL: true,
