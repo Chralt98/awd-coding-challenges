@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
@@ -17,6 +18,7 @@ import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 import { UpdateThreadDto } from './dto/update-thread.dto';
 import { CommentResponseDto } from '../comments/dto/comment-response.dto';
 import { ThreadResponseDto } from './dto/thread-response.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Controller('threads')
 export class ThreadsController {
@@ -28,8 +30,11 @@ export class ThreadsController {
   }
 
   @Get()
-  async getAll(): Promise<ThreadResponseDto[]> {
-    return this.threadsService.getAll();
+  async getAll(@Query() pagination: PaginationQueryDto): Promise<{
+    data: ThreadResponseDto[];
+    meta: { page: number; limit: number; total: number; totalPages: number };
+  }> {
+    return this.threadsService.getAll(pagination);
   }
 
   @Get(':id')

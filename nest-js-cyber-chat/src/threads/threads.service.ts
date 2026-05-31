@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { ThreadResponseDto } from './dto/thread-response.dto';
 import { CommentResponseDto } from '../comments/dto/comment-response.dto';
 import { CreateThreadDto } from './dto/create-thread.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Injectable()
 export class ThreadsService {
@@ -18,15 +19,30 @@ export class ThreadsService {
     private readonly threads: Repository<Thread>,
   ) {}
 
-  async getAll(): Promise<ThreadResponseDto[]> {
-    const threads = await this.threads.find({
+  async getAll(pagination: PaginationQueryDto): Promise<{
+    data: ThreadResponseDto[];
+    meta: { page: number; limit: number; total: number; totalPages: number };
+  }> {
+    const { page, limit } = pagination;
+
+    const [threads, total] = await this.threads.findAndCount({
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
-    return threads.map((thread) =>
-      plainToInstance(ThreadResponseDto, thread, {
-        excludeExtraneousValues: true,
-      }),
-    );
+    return {
+      data: threads.map((thread) =>
+        plainToInstance(ThreadResponseDto, thread, {
+          excludeExtraneousValues: true,
+        }),
+      ),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async getById(id: string): Promise<ThreadResponseDto | null> {
