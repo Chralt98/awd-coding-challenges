@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { Get, Delete, Param, NotFoundException } from '@nestjs/common';
 import { CommentResponseDto } from './dto/comment-response.dto';
-import { toCommentResponseDto } from './mappers/comment-response.mapper';
 
 @Controller('comments')
 export class CommentsController {
@@ -14,7 +13,7 @@ export class CommentsController {
     if (!comment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
     }
-    return toCommentResponseDto(comment);
+    return comment;
   }
 
   @Delete(':id')

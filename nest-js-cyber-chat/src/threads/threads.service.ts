@@ -98,20 +98,7 @@ export class ThreadsService {
       throw new Error(`Thread with id ${threadId} not found`);
     }
     const { author, body } = dto;
-    const comment = await this.commentsService.add(threadId, author, body);
-    return plainToInstance(
-      CommentResponseDto,
-      {
-        id: comment.id,
-        threadId: comment.thread.id,
-        body: comment.body,
-        author: comment.author,
-        createdAt: comment.createdAt,
-      },
-      {
-        excludeExtraneousValues: true,
-      },
-    );
+    return this.commentsService.add(threadId, author, body);
   }
 
   async delete(id: string): Promise<DeleteResult> {
