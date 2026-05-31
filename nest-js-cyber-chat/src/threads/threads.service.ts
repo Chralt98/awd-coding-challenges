@@ -25,6 +25,13 @@ export class ThreadsService {
     return this.threads.findOneBy({ id });
   }
 
+  async getByIdWithComments(id: string): Promise<Thread | null> {
+    return this.threads.findOne({
+      where: { id },
+      relations: { comments: { thread: true } },
+    });
+  }
+
   async create(title: string, body: string): Promise<Thread> {
     const thread = this.threads.create({
       title,
@@ -54,14 +61,6 @@ export class ThreadsService {
     }
     const { author, body } = dto;
     return this.commentsService.add(threadId, author, body);
-  }
-
-  async getCommentsForThread(threadId: string) {
-    const thread = await this.threads.findOneBy({ id: threadId });
-    if (!thread) {
-      throw new Error(`Thread with id ${threadId} not found`);
-    }
-    return this.commentsService.getAllForThread(threadId);
   }
 
   async delete(id: string): Promise<DeleteResult> {

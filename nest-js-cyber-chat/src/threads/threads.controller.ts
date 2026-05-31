@@ -35,12 +35,11 @@ export class ThreadsController {
 
   @Get(':id')
   async getOne(@Param('id') id: string): Promise<ThreadResponseDto> {
-    const thread = await this.threadsService.getById(id);
+    const thread = await this.threadsService.getByIdWithComments(id);
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    const comments = await this.threadsService.getCommentsForThread(id);
-    return toThreadResponseDto({ ...thread, comments });
+    return toThreadResponseDto(thread);
   }
 
   @Post(':id/comments')
@@ -68,9 +67,12 @@ export class ThreadsController {
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
-    const updatedThread = await this.threadsService.update(id, dto);
-    const comments = await this.threadsService.getCommentsForThread(id);
-    return toThreadResponseDto({ ...updatedThread, comments });
+    await this.threadsService.update(id, dto);
+    const updatedThread = await this.threadsService.getByIdWithComments(id);
+    if (!updatedThread) {
+      throw new NotFoundException(`Thread with id ${id} not found`);
+    }
+    return toThreadResponseDto(updatedThread);
   }
 
   @Delete(':id')
