@@ -17,7 +17,10 @@ export class CommentsService {
   }
 
   async getById(id: string): Promise<Comment | null> {
-    return this.comments.findOne({ where: { id } });
+    return this.comments.findOne({
+      where: { id },
+      relations: { thread: true },
+    });
   }
 
   async add(threadId: string, author: string, body: string): Promise<Comment> {
@@ -32,6 +35,7 @@ export class CommentsService {
   async getAllForThread(threadId: string): Promise<Comment[]> {
     return this.comments.find({
       where: { thread: { id: threadId } },
+      relations: { thread: true },
       order: { createdAt: 'DESC' },
     });
   }
