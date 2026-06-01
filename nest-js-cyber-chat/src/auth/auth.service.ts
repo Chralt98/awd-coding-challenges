@@ -27,7 +27,7 @@ export class AuthService {
     return null;
   }
 
-  login(user: AuthUser) {
+  login(user: AuthUser): { access_token: string } {
     const payload = {
       id: user.id,
       username: user.username,
