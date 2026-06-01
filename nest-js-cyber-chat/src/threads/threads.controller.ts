@@ -19,6 +19,7 @@ import { UpdateThreadDto } from './dto/update-thread.dto';
 import { CommentResponseDto } from '../comments/dto/comment-response.dto';
 import { ThreadResponseDto } from './dto/thread-response.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('threads')
 export class ThreadsController {
@@ -29,6 +30,7 @@ export class ThreadsController {
     return this.threadsService.create(dto);
   }
 
+  @Public()
   @Get()
   async getAll(@Query() pagination: PaginationQueryDto): Promise<{
     data: ThreadResponseDto[];
@@ -37,6 +39,7 @@ export class ThreadsController {
     return this.threadsService.getAll(pagination);
   }
 
+  @Public()
   @Get(':id')
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,

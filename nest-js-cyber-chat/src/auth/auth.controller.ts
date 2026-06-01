@@ -12,7 +12,7 @@ import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService, type AuthUser } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +21,7 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
+  @Public()
   @Post('register')
   async register(
     @Body() createUserDto: CreateUserDto,
@@ -28,6 +29,7 @@ export class AuthController {
     return await this.usersService.create(createUserDto);
   }
 
+  @Public()
   @UseGuards(AuthGuard('local'))
   @Post('login')
   login(
@@ -37,7 +39,6 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   me(@Request() req: { user: AuthUser }): AuthUser {
     return req.user;

@@ -7,11 +7,13 @@ import {
 import { CommentsService } from './comments.service';
 import { Get, Delete, Param, NotFoundException } from '@nestjs/common';
 import { CommentResponseDto } from './dto/comment-response.dto';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
+  @Public()
   @Get(':id')
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,
