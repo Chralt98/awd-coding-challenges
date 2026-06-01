@@ -3,11 +3,17 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Request,
+  ForbiddenException,
+  Get,
+  Delete,
+  Param,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { Get, Delete, Param, NotFoundException } from '@nestjs/common';
 import { CommentResponseDto } from './dto/comment-response.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { AuthUser } from '../auth/auth.service';
 
 @Controller('comments')
 export class CommentsController {
@@ -27,10 +33,18 @@ export class CommentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  async delete(
+    @Request() req: { user: AuthUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     const comment = await this.commentsService.getById(id);
     if (!comment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
+    }
+    if (comment.author !== req.user.username) {
+      throw new ForbiddenException(
+        'You are not allowed to delete this comment',
+      );
     }
     await this.commentsService.deleteBody(id);
   }

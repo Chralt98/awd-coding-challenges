@@ -81,11 +81,14 @@ export class ThreadsService {
     );
   }
 
-  async create(dto: CreateThreadDto): Promise<ThreadResponseDto> {
+  async create(
+    dto: CreateThreadDto,
+    username: string,
+  ): Promise<ThreadResponseDto> {
     const thread = this.threads.create({
       title: dto.title,
       body: dto.body,
-      author: dto.author,
+      author: username,
     });
     const savedThread = await this.threads.save(thread);
     return plainToInstance(ThreadResponseDto, savedThread, {
@@ -107,9 +110,10 @@ export class ThreadsService {
   async addCommentForThread(
     threadId: string,
     dto: CreateCommentDto,
+    username: string,
   ): Promise<CommentResponseDto> {
-    const { author, body } = dto;
-    return this.commentsService.add(threadId, author, body);
+    const { body } = dto;
+    return this.commentsService.add(threadId, username, body);
   }
 
   async delete(id: string): Promise<DeleteResult> {
