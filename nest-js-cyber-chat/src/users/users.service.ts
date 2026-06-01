@@ -26,13 +26,8 @@ export class UsersService {
     });
   }
 
-  async findByUsername(username: string): Promise<UserResponseDto | null> {
+  async findByUsername(username: string): Promise<User | null> {
     const user = await this.users.findOneBy({ username });
-    if (!user) {
-      return null;
-    }
-    return plainToInstance(UserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+    return user;
   }
 }
