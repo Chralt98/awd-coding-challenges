@@ -9,8 +9,8 @@ export type AuthUser = Pick<User, 'id' | 'username'>;
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(
