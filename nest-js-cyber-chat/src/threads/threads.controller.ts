@@ -24,6 +24,7 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthUser } from '../auth/auth.service';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -40,6 +41,7 @@ export class ThreadsController {
   @ApiOperation({ summary: 'Create a new thread' })
   @ApiCreatedResponse({ description: 'Thread created successfully' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBearerAuth()
   async create(
     @Request() req: { user: AuthUser },
     @Body() dto: CreateThreadDto,
@@ -78,6 +80,7 @@ export class ThreadsController {
   @ApiCreatedResponse({ description: 'Comment added successfully' })
   @ApiNotFoundResponse({ description: 'Thread not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBearerAuth()
   async addComment(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) threadId: string,
@@ -102,6 +105,7 @@ export class ThreadsController {
   @ApiForbiddenResponse({
     description: 'You are not allowed to update this thread',
   })
+  @ApiBearerAuth()
   async update(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,
@@ -125,6 +129,7 @@ export class ThreadsController {
   @ApiForbiddenResponse({
     description: 'You are not allowed to delete this thread',
   })
+  @ApiBearerAuth()
   async delete(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,

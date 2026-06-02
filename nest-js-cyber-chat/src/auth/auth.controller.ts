@@ -15,6 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { type Request as ExpressRequest } from 'express';
 import {
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -57,6 +58,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get the currently authenticated user' })
   @ApiOkResponse({ description: 'Returns the currently authenticated user' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBearerAuth()
   me(@Request() req: ExpressRequest & { user: AuthUser }): AuthUser {
     return req.user;
   }

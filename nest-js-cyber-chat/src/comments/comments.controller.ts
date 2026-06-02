@@ -14,7 +14,14 @@ import { CommentsService } from './comments.service';
 import { CommentResponseDto } from './dto/comment-response.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthUser } from '../auth/auth.service';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller('comments')
 export class CommentsController {
@@ -23,6 +30,8 @@ export class CommentsController {
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a comment by its ID' })
+  @ApiOkResponse({ description: 'Returns the comment' })
+  @ApiNotFoundResponse({ description: 'Comment not found' })
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CommentResponseDto> {
@@ -36,6 +45,13 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a comment by its ID' })
+  @ApiOkResponse({ description: 'Comment deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Comment not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({
+    description: 'You are not allowed to delete this comment',
+  })
+  @ApiBearerAuth()
   async delete(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,
