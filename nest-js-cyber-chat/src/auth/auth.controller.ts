@@ -49,7 +49,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Invalid username or password' })
   login(
     @Request() req: ExpressRequest & { user: AuthUser },
-    _loginDto: LoginDto,
+    @Body() _loginDto: LoginDto,
   ): { access_token: string } {
     return this.authService.login(req.user);
   }
