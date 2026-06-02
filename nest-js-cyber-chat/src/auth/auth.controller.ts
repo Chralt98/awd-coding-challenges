@@ -14,7 +14,13 @@ import { AuthService, type AuthUser } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { type Request as ExpressRequest } from 'express';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +32,8 @@ export class AuthController {
   @Public()
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
+  @ApiCreatedResponse({ description: 'User registered successfully' })
+  @ApiConflictResponse({ description: 'Username already exists' })
   async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
@@ -36,6 +44,8 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   @ApiOperation({ summary: 'Login and receive a JWT access token' })
+  @ApiOkResponse({ description: 'Login successful, returns access token' })
+  @ApiUnauthorizedResponse({ description: 'Invalid username or password' })
   login(
     @Request() req: ExpressRequest & { user: AuthUser },
     _loginDto: LoginDto,
@@ -45,6 +55,8 @@ export class AuthController {
 
   @Get()
   @ApiOperation({ summary: 'Get the currently authenticated user' })
+  @ApiOkResponse({ description: 'Returns the currently authenticated user' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   me(@Request() req: ExpressRequest & { user: AuthUser }): AuthUser {
     return req.user;
   }

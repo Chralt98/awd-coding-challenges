@@ -23,7 +23,14 @@ import { ThreadResponseDto } from './dto/thread-response.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthUser } from '../auth/auth.service';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @Controller('threads')
 export class ThreadsController {
@@ -31,6 +38,8 @@ export class ThreadsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new thread' })
+  @ApiCreatedResponse({ description: 'Thread created successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(
     @Request() req: { user: AuthUser },
     @Body() dto: CreateThreadDto,
@@ -41,6 +50,7 @@ export class ThreadsController {
   @Public()
   @Get()
   @ApiOperation({ summary: 'Get a paginated list of threads' })
+  @ApiOkResponse({ description: 'Returns a paginated list of threads' })
   async getAll(@Query() pagination: PaginationQueryDto): Promise<{
     data: ThreadResponseDto[];
     meta: { page: number; limit: number; total: number; totalPages: number };
@@ -51,6 +61,8 @@ export class ThreadsController {
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a thread by its ID, including its comments' })
+  @ApiOkResponse({ description: 'Returns the thread with its comments' })
+  @ApiNotFoundResponse({ description: 'Thread not found' })
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ThreadResponseDto> {
@@ -63,6 +75,9 @@ export class ThreadsController {
 
   @Post(':id/comments')
   @ApiOperation({ summary: 'Add a comment to a thread' })
+  @ApiCreatedResponse({ description: 'Comment added successfully' })
+  @ApiNotFoundResponse({ description: 'Thread not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async addComment(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) threadId: string,
@@ -81,6 +96,12 @@ export class ThreadsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a thread by its ID' })
+  @ApiOkResponse({ description: 'Thread updated successfully' })
+  @ApiNotFoundResponse({ description: 'Thread not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({
+    description: 'You are not allowed to update this thread',
+  })
   async update(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,
@@ -99,6 +120,11 @@ export class ThreadsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a thread by its ID' })
+  @ApiNotFoundResponse({ description: 'Thread not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({
+    description: 'You are not allowed to delete this thread',
+  })
   async delete(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,

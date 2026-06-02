@@ -2,7 +2,11 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
@@ -10,6 +14,8 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
+  @ApiCreatedResponse({ description: 'User created successfully' })
+  @ApiConflictResponse({ description: 'Username already exists' })
   async createUser(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
     return this.usersService.create(dto);
   }
