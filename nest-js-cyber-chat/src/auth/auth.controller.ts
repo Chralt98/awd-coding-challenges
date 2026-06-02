@@ -14,6 +14,7 @@ import { AuthService, type AuthUser } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { type Request as ExpressRequest } from 'express';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +25,7 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user' })
   async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
@@ -33,6 +35,7 @@ export class AuthController {
   @Public()
   @UseGuards(AuthGuard('local'))
   @Post('login')
+  @ApiOperation({ summary: 'Login and receive a JWT access token' })
   login(
     @Request() req: ExpressRequest & { user: AuthUser },
     _loginDto: LoginDto,
@@ -41,6 +44,7 @@ export class AuthController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get the currently authenticated user' })
   me(@Request() req: ExpressRequest & { user: AuthUser }): AuthUser {
     return req.user;
   }

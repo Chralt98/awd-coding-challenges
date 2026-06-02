@@ -23,12 +23,14 @@ import { ThreadResponseDto } from './dto/thread-response.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthUser } from '../auth/auth.service';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('threads')
 export class ThreadsController {
   constructor(private readonly threadsService: ThreadsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new thread' })
   async create(
     @Request() req: { user: AuthUser },
     @Body() dto: CreateThreadDto,
@@ -38,6 +40,7 @@ export class ThreadsController {
 
   @Public()
   @Get()
+  @ApiOperation({ summary: 'Get a paginated list of threads' })
   async getAll(@Query() pagination: PaginationQueryDto): Promise<{
     data: ThreadResponseDto[];
     meta: { page: number; limit: number; total: number; totalPages: number };
@@ -47,6 +50,7 @@ export class ThreadsController {
 
   @Public()
   @Get(':id')
+  @ApiOperation({ summary: 'Get a thread by its ID, including its comments' })
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ThreadResponseDto> {
@@ -58,6 +62,7 @@ export class ThreadsController {
   }
 
   @Post(':id/comments')
+  @ApiOperation({ summary: 'Add a comment to a thread' })
   async addComment(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) threadId: string,
@@ -75,6 +80,7 @@ export class ThreadsController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a thread by its ID' })
   async update(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,
@@ -92,6 +98,7 @@ export class ThreadsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a thread by its ID' })
   async delete(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,

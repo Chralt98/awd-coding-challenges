@@ -14,6 +14,7 @@ import { CommentsService } from './comments.service';
 import { CommentResponseDto } from './dto/comment-response.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthUser } from '../auth/auth.service';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('comments')
 export class CommentsController {
@@ -21,6 +22,7 @@ export class CommentsController {
 
   @Public()
   @Get(':id')
+  @ApiOperation({ summary: 'Get a comment by its ID' })
   async getOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CommentResponseDto> {
@@ -33,6 +35,7 @@ export class CommentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a comment by its ID' })
   async delete(
     @Request() req: { user: AuthUser },
     @Param('id', ParseUUIDPipe) id: string,
