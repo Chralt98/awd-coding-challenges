@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ThreadsController } from './threads.controller';
+import { ThreadsService } from './threads.service';
 
 describe('ThreadsController', () => {
   let controller: ThreadsController;
@@ -7,6 +8,12 @@ describe('ThreadsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ThreadsController],
+      providers: [
+        {
+          provide: ThreadsService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     controller = module.get<ThreadsController>(ThreadsController);
