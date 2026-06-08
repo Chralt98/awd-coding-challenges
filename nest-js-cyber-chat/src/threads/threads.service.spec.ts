@@ -3,6 +3,16 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommentsService } from '../comments/comments.service';
 import { Thread } from './threads.entity';
 import { ThreadsService } from './threads.service';
+import { vi } from 'vitest';
+
+const mockThreadsRepository = {
+  findAndCount: vi.fn(),
+  findOneBy: vi.fn(),
+  findOne: vi.fn(),
+  create: vi.fn(),
+  save: vi.fn(),
+  delete: vi.fn(),
+};
 
 describe('ThreadsService', () => {
   let service: ThreadsService;
@@ -17,7 +27,7 @@ describe('ThreadsService', () => {
         },
         {
           provide: getRepositoryToken(Thread),
-          useValue: {},
+          useValue: mockThreadsRepository,
         },
       ],
     }).compile();
