@@ -4,7 +4,11 @@
   "main": "dist/main.js",
   "scripts": {
     "start": "node dist/main.js",
-    "build": "tsc"
+    "build": "tsc",
+    "docker:build": "docker build -t scoreboard-service .",
+    "docker:run": "docker run -d --name scoreboard-service --network arcade-net -p 3000:3000 scoreboard-service",
+    "compose:up": "docker compose -f compose.yaml up -d",
+    "compose:down": "docker compose -f compose.yaml down"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
