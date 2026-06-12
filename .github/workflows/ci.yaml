@@ -26,8 +26,8 @@ jobs:
           cache: "npm"
           cache-dependency-path: nest-js-cyber-chat/package-lock.json
 
-      - name: Install and Test
-        run: npm ci && npm test
+      - run: npm ci
+      - run: npm test
   build:
     runs-on: ubuntu-latest
     defaults:
@@ -44,5 +44,5 @@ jobs:
           cache: "npm"
           cache-dependency-path: nest-js-cyber-chat/package-lock.json
 
-      - name: Install and Build
-        run: npm ci && npm run build
+      - run: npm ci
+      - run: npm run build
