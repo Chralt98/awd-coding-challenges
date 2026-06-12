@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - "nest-js-cyber-chat/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "nest-js-cyber-chat/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nest-js-cyber-chat
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 26
+          cache: "npm"
+          cache-dependency-path: nest-js-cyber-chat/package-lock.json
+
+      - name: Install and Test
+        run: npm ci && npm test
+
+      - name: Build
+        run: npm run build
