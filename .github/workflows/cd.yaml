@@ -36,7 +36,7 @@ jobs:
           file: nest-js-cyber-chat/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cyber-chat-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cyber-chat-service:v1
 
       - name: Trigger Render deploy hook
         run: curl -fsSL -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
