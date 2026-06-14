@@ -18,6 +18,6 @@ export class User {
   @Exclude()
   passwordHash!: string;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 }

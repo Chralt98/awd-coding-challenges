@@ -18,7 +18,7 @@ export class Thread {
   @Column({ type: 'text' })
   body!: string;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
   @Column({ type: 'text' })
