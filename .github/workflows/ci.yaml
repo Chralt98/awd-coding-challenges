@@ -9,6 +9,9 @@ on:
     paths:
       - "nest-js-cyber-chat/**"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
