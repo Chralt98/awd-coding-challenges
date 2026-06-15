@@ -1,4 +1,12 @@
-import { getDeliveryById } from "@/lib/services/deliveriesService";
+import {
+  getAllDeliveries,
+  getDeliveryById,
+} from "@/lib/services/deliveriesService";
+
+export async function generateStaticParams() {
+  const deliveries = await getAllDeliveries();
+  return deliveries.map((delivery) => ({ id: delivery.id }));
+}
 
 export default async function DeliveryDetailPage({
   params,
