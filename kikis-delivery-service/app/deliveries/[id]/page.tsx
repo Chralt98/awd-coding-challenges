@@ -15,11 +15,7 @@ export default async function DeliveryDetailPage({
   const delivery = await getDeliveryById(id);
 
   if (!delivery) {
-    return (
-      <div>
-        <h1>Delivery {id} not found</h1>
-      </div>
-    );
+    throw new Error(`Delivery with id ${id} not found`);
   }
 
   return (
