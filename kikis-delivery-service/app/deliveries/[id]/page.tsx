@@ -2,6 +2,7 @@ import {
   getAllDeliveries,
   getDeliveryById,
 } from "@/lib/services/deliveriesService";
+import Link from "next/link";
 
 export async function generateStaticParams() {
   const deliveries = await getAllDeliveries();
@@ -25,6 +26,7 @@ export default async function DeliveryDetailPage({
         From {delivery.pickup} to {delivery.destination}
       </p>
       <p>Status: {delivery.status}</p>
+      <Link href="/deliveries">Back to all deliveries</Link>
     </div>
   );
 }
