@@ -1,22 +1,26 @@
-import { getAllDeliveries } from "@/lib/services/deliveriesService";
+import { getDeliveryById } from "@/lib/services/deliveriesService";
 
-export default async function DeliveriesPage({
+export default async function DeliveryDetailPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: PageProps<"/deliveries/[id]">) {
   const { id } = await params;
-  const deliveries = await getAllDeliveries();
-  const delivery = deliveries.find((d) => d.id === id);
+  const delivery = await getDeliveryById(id);
+
   if (!delivery) {
-    return <div>Delivery not found</div>;
+    return (
+      <div>
+        <h1>Delivery {id} not found</h1>
+      </div>
+    );
   }
+
   return (
     <div>
-      <h1>
-        Delivery with key {delivery.id} for pickup {delivery.pickup} to{" "}
-        {delivery.destination} ({delivery.status})
-      </h1>
+      <h1>Delivery {id}</h1>
+      <p>
+        From {delivery.pickup} to {delivery.destination}
+      </p>
+      <p>Status: {delivery.status}</p>
     </div>
   );
 }
