@@ -1,4 +1,5 @@
 import { getAllDeliveries } from "@/lib/services/deliveriesService";
+import Link from "next/link";
 
 export default async function DeliveriesPage() {
   const deliveries = await getAllDeliveries(); // calls separate Backend API or makes a direct database query
@@ -9,7 +10,9 @@ export default async function DeliveriesPage() {
       <ul>
         {deliveries.map((delivery) => (
           <li key={delivery.id}>
-            {delivery.pickup} to {delivery.destination} ({delivery.status})
+            <Link href={`/deliveries/${delivery.id}`}>
+              {delivery.pickup} to {delivery.destination} ({delivery.status})
+            </Link>
           </li>
         ))}
       </ul>
