@@ -1,3 +1,8 @@
 export default function Home() {
-  return <div>Hello World!</div>;
+  return (
+    <div>
+      <h1>Kiki's Delivery Service</h1>
+      <p>Fast, reliable deliveries across the city.</p>
+    </div>
+  );
 }
