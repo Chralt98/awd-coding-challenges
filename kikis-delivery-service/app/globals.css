@@ -42,6 +42,10 @@ a {
   text-decoration: none;
 }
 
+h1 {
+  font-family: var(--font-cherry-bomb-one);
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
