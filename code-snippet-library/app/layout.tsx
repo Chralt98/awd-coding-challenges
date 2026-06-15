@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -24,7 +23,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <style>{`
+          body {
+            font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+            margin: 0;
+          }
+
+          h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+            font-weight: 700;
+          }
+
+          pre, code {
+            font-family: var(--font-jetbrains-mono), monospace;
+          }
+        `}</style>
+        {children}
+      </body>
     </html>
   );
 }
