@@ -37,3 +37,20 @@ export function getAllSnippets(): Snippet[] {
 export function getSnippetById(id: string): Snippet | null {
   return snippets.find((snippet) => snippet.id === Number(id)) || null;
 }
+
+export function createSnippet(
+  title: string,
+  language: string,
+  description: string,
+  code: string,
+): Snippet {
+  const newSnippet: Snippet = {
+    id: snippets.length + 1,
+    title,
+    language,
+    description,
+    code,
+  };
+  snippets.push(newSnippet);
+  return newSnippet;
+}
