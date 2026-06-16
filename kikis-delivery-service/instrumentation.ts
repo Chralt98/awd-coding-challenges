@@ -7,7 +7,10 @@ export async function register() {
     destination TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active'
   )`;
-  await seed();
+  const [{ count }] = await sql`SELECT COUNT(*) FROM deliveries`;
+  if (Number(count) === 0) {
+    await seed();
+  }
 }
 
 export async function seed() {
