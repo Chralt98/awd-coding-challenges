@@ -14,7 +14,7 @@ export async function getAllSnippets(): Promise<Snippet[]> {
 
 export async function getSnippetById(id: string): Promise<Snippet | null> {
   const [snippets] = await sql<Snippet[]>`
-    SELECT * FROM deliveries WHERE id = ${id}
+    SELECT * FROM snippets WHERE id = ${id}
   `;
   return snippets ?? null;
 }
