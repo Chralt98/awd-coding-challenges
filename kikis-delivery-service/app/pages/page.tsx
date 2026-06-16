@@ -1,7 +1,7 @@
 import { getAllDeliveries } from "@/lib/services/deliveriesService";
 
-export default function Pages() {
-  const allDeliveries = getAllDeliveries();
+export default async function Pages() {
+  const allDeliveries = await getAllDeliveries();
   const firstDelivery = allDeliveries[0];
 
   return (

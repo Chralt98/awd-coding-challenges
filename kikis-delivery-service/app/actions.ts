@@ -7,6 +7,6 @@ export async function addDelivery(formData: FormData) {
   const pickup = formData.get("pickup") as string;
   const destination = formData.get("destination") as string;
 
-  await createDelivery(pickup, destination);
+  await createDelivery({ pickup, destination });
   revalidatePath("/deliveries");
 }

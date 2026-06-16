@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export async function generateStaticParams() {
   const deliveries = await getAllDeliveries();
-  return deliveries.map((delivery) => ({ id: delivery.id }));
+  return deliveries.map((delivery) => ({ id: String(delivery.id) }));
 }
 
 export default async function DeliveryDetailPage({
