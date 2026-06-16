@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DeliveryRequest } from "@/lib/services/deliveriesService";
+import Link from "next/link";
 
 export default function DeliveryFilter({
   deliveries,
@@ -29,7 +30,9 @@ export default function DeliveryFilter({
       <ul>
         {visible.map((delivery) => (
           <li key={delivery.id}>
-            {delivery.pickup} to {delivery.destination} ({delivery.status})
+            <Link href={`/deliveries/${delivery.id}`}>
+              {delivery.pickup} to {delivery.destination} ({delivery.status})
+            </Link>
           </li>
         ))}
       </ul>

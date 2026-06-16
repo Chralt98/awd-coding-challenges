@@ -31,3 +31,17 @@ export function getAllDeliveries(): DeliveryRequest[] {
 export function getDeliveryById(id: string): DeliveryRequest | null {
   return deliveries.find((d) => d.id === id) || null;
 }
+
+export function createDelivery(
+  pickup: string,
+  destination: string,
+): DeliveryRequest {
+  const newDelivery: DeliveryRequest = {
+    id: (deliveries.length + 1).toString(),
+    pickup,
+    destination,
+    status: "active",
+  };
+  deliveries.push(newDelivery);
+  return newDelivery;
+}
