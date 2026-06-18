@@ -9,7 +9,11 @@ export default async function DeliveriesPage() {
   return (
     <div>
       <h1 className="text-3xl text-red-500">All Deliveries</h1>
-      <Button nativeButton={false} render={<Link href="/deliveries/new" />}>
+      <Button
+        variant="brand"
+        nativeButton={false}
+        render={<Link href="/deliveries/new" />}
+      >
         New Delivery
       </Button>
       <DeliveryFilter deliveries={deliveries} />
