@@ -6,7 +6,7 @@ export default async function DeliveriesPage() {
 
   return (
     <div>
-      <h1>All Deliveries</h1>
+      <h1 className="text-3xl text-red-500">All Deliveries</h1>
       <DeliveryFilter deliveries={deliveries} />
     </div>
   );
