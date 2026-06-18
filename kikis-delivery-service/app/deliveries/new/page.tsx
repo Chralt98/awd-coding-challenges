@@ -1,11 +1,16 @@
 import { addDelivery } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function NewDeliveryPage() {
   return (
     <form action={addDelivery}>
-      <input name="pickup" placeholder="Pickup" />
-      <input name="destination" placeholder="Destination" />
-      <button type="submit">Create request</button>
+      <Label htmlFor="pickup">Pickup</Label>
+      <Input id="pickup" name="pickup" placeholder="Bakery" />
+      <Label htmlFor="destination">Destination</Label>
+      <Input id="destination" name="destination" placeholder="Airport" />
+      <Button type="submit">Create request</Button>
     </form>
   );
 }
