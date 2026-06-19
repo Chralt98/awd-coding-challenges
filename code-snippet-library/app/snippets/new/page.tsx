@@ -1,4 +1,5 @@
 import { createNewSnippet } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 
 export default function NewSnippetPage() {
   return (
@@ -7,7 +8,7 @@ export default function NewSnippetPage() {
       <input name="language" placeholder="Language" />
       <input name="description" placeholder="Description" />
       <input name="code" placeholder="Code" />
-      <button type="submit">Create request</button>
+      <Button type="submit">Create request</Button>
     </form>
   );
 }

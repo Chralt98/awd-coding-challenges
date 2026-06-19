@@ -11,6 +11,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
   const [language, setLanguage] = useState("All");
@@ -22,6 +23,7 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
 
   return (
     <div>
+      <Button render={<Link href="/snippets/new" />}>New Snippet</Button>
       <select
         value={language}
         onChange={(event) => setLanguage(event.target.value)}
