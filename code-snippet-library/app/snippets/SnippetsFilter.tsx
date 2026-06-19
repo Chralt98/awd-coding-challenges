@@ -3,6 +3,14 @@
 import { useState } from "react";
 import type { Snippet } from "@/lib/services/snippetsService";
 import Link from "next/link";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
   const [language, setLanguage] = useState("All");
@@ -23,21 +31,27 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
         <option value="CSS">CSS</option>
         <option value="TypeScript">TypeScript</option>
       </select>
-      <ul>
+      <div>
         {visibleSnippets.map((snippet) => (
-          <li key={snippet.id}>
-            <h2>{snippet.title}</h2>
-            <p>{snippet.language}</p>
-            <p>{snippet.description}</p>
-            <pre>
-              <code>{snippet.code}</code>
-            </pre>
-            <Link href={`/snippets/${snippet.id}`}>
-              Go to snippet {snippet.title}
-            </Link>
-          </li>
+          <Card key={snippet.id}>
+            <CardHeader>
+              <div>
+                <CardTitle>{snippet.title}</CardTitle>
+                <span>{snippet.language}</span>
+              </div>
+              <CardDescription>{snippet.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <pre>
+                <code>{snippet.code}</code>
+              </pre>
+            </CardContent>
+            <CardFooter>
+              <Link href={`/snippets/${snippet.id}`}>View snippet →</Link>
+            </CardFooter>
+          </Card>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
