@@ -19,6 +19,11 @@ export async function getSnippetById(id: string): Promise<Snippet | null> {
   return snippets ?? null;
 }
 
+export async function getSnippetsByIds(ids: number[]): Promise<Snippet[]> {
+  if (ids.length === 0) return [];
+  return sql<Snippet[]>`SELECT * FROM snippets WHERE id = ANY(${ids})`;
+}
+
 export async function createSnippet(
   title: string,
   language: string,

@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface FavoritesState {
   favoriteIds: string[];
@@ -6,17 +8,38 @@ interface FavoritesState {
   isFavorite: (id: string) => boolean;
 }
 
-const useFavoritesStore = create<FavoritesState>((set, get) => ({
-  favoriteIds: [],
+const favoritesStore = create<FavoritesState>()(
+  persist(
+    (set, get) => ({
+      favoriteIds: [],
 
-  toggleFavorite: (id) =>
-    set((state) => ({
-      favoriteIds: state.favoriteIds.includes(id)
-        ? state.favoriteIds.filter((favId) => favId !== id)
-        : [...state.favoriteIds, id],
-    })),
+      toggleFavorite: (id) =>
+        set((state) => ({
+          favoriteIds: state.favoriteIds.includes(id)
+            ? state.favoriteIds.filter((favId) => favId !== id)
+            : [...state.favoriteIds, id],
+        })),
 
-  isFavorite: (id) => get().favoriteIds.includes(id),
-}));
+      isFavorite: (id) => get().favoriteIds.includes(id),
+    }),
+    {
+      name: "favorites-storage",
+      skipHydration: true,
+    },
+  ),
+);
 
-export default useFavoritesStore;
+let rehydrated = false;
+
+export default function useFavoritesStore<T>(
+  selector: (state: FavoritesState) => T,
+): T {
+  useEffect(() => {
+    if (!rehydrated) {
+      rehydrated = true;
+      favoritesStore.persist.rehydrate();
+    }
+  }, []);
+
+  return favoritesStore(selector);
+}

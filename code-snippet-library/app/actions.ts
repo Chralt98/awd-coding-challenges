@@ -1,6 +1,7 @@
 "use server";
 
-import { createSnippet } from "@/lib/services/snippetsService";
+import { createSnippet, getSnippetsByIds } from "@/lib/services/snippetsService";
+import type { Snippet } from "@/lib/services/snippetsService";
 import { revalidatePath } from "next/cache";
 
 export async function createNewSnippet(formData: FormData) {
@@ -11,4 +12,8 @@ export async function createNewSnippet(formData: FormData) {
 
   await createSnippet(title, language, description, code);
   revalidatePath("/snippets");
+}
+
+export async function fetchSnippetsByIds(ids: string[]): Promise<Snippet[]> {
+  return getSnippetsByIds(ids.map(Number));
 }
