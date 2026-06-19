@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import "./globals.css";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -27,21 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, jetbrainsMono.variable, "font-sans", geist.variable)}>
       <body>
-        <style>{`
-          body {
-            font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-            margin: 0;
-          }
-
-          h1, h2, h3, h4, h5, h6 {
-            font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-            font-weight: 700;
-          }
-
-          pre, code {
-            font-family: var(--font-jetbrains-mono), monospace;
-          }
-        `}</style>
         {children}
       </body>
     </html>

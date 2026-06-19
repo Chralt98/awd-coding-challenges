@@ -29,43 +29,53 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
       : snippets.filter((snippet) => snippet.language === language);
 
   return (
-    <div>
-      <Button nativeButton={false} render={<Link href="/snippets/new" />}>New Snippet</Button>
-      <Select
-        value={language}
-        onValueChange={(value) => value && setLanguage(value)}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Language" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="All">All</SelectItem>
-          <SelectItem value="JavaScript">JavaScript</SelectItem>
-          <SelectItem value="CSS">CSS</SelectItem>
-          <SelectItem value="TypeScript">TypeScript</SelectItem>
-        </SelectContent>
-      </Select>
-      <div>
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <div className="mb-8 flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Snippets</h1>
+        <div className="flex items-center gap-3">
+          <Select
+            value={language}
+            onValueChange={(value) => value && setLanguage(value)}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="JavaScript">JavaScript</SelectItem>
+              <SelectItem value="CSS">CSS</SelectItem>
+              <SelectItem value="TypeScript">TypeScript</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button render={<Link href="/snippets/new" />}>New Snippet</Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         {visibleSnippets.map((snippet) => (
           <Card key={snippet.id}>
             <CardHeader>
-              <div>
+              <div className="flex items-center justify-between">
                 <CardTitle>{snippet.title}</CardTitle>
-                <span>{snippet.language}</span>
+                <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                  {snippet.language}
+                </span>
               </div>
               <CardDescription>{snippet.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <pre>
+              <pre className="overflow-x-auto rounded-md bg-muted p-3 text-sm">
                 <code>{snippet.code}</code>
               </pre>
             </CardContent>
             <CardFooter>
-              <Link href={`/snippets/${snippet.id}`}>View snippet →</Link>
+              <Button variant="link" className="px-0" render={<Link href={`/snippets/${snippet.id}`} />}>
+                View snippet &rarr;
+              </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
-    </div>
+    </main>
   );
 }
