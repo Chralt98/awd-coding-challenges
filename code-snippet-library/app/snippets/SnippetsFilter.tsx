@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
   const [language, setLanguage] = useState("All");
@@ -68,10 +69,11 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
                 <code>{snippet.code}</code>
               </pre>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex items-center justify-between">
               <Button variant="link" className="px-0" nativeButton={false} render={<Link href={`/snippets/${snippet.id}`} />}>
                 View snippet &rarr;
               </Button>
+              <FavoriteButton id={String(snippet.id)} />
             </CardFooter>
           </Card>
         ))}

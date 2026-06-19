@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export async function generateStaticParams() {
   const snippets = await getAllSnippets();
@@ -34,9 +35,12 @@ export default async function SnippetDetailPage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">{snippet.title}</CardTitle>
-            <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-              {snippet.language}
-            </span>
+            <div className="flex items-center gap-2">
+              <FavoriteButton id={String(snippet.id)} />
+              <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                {snippet.language}
+              </span>
+            </div>
           </div>
           <CardDescription>{snippet.description}</CardDescription>
         </CardHeader>
