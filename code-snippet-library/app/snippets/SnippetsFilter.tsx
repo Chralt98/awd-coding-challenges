@@ -47,7 +47,7 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
               <SelectItem value="TypeScript">TypeScript</SelectItem>
             </SelectContent>
           </Select>
-          <Button render={<Link href="/snippets/new" />}>New Snippet</Button>
+          <Button nativeButton={false} render={<Link href="/snippets/new" />}>New Snippet</Button>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
               </pre>
             </CardContent>
             <CardFooter>
-              <Button variant="link" className="px-0" render={<Link href={`/snippets/${snippet.id}`} />}>
+              <Button variant="link" className="px-0" nativeButton={false} render={<Link href={`/snippets/${snippet.id}`} />}>
                 View snippet &rarr;
               </Button>
             </CardFooter>
