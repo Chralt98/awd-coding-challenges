@@ -26,7 +26,7 @@ export default async function SnippetDetailPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      <Button variant="ghost" className="mb-6" render={<Link href="/snippets" />}>
+      <Button variant="ghost" className="mb-6" nativeButton={false} render={<Link href="/snippets" />}>
         &larr; Back to all snippets
       </Button>
 
