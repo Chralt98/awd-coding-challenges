@@ -12,6 +12,13 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
   const [language, setLanguage] = useState("All");
@@ -23,16 +30,21 @@ export function SnippetsFilter({ snippets }: { snippets: Snippet[] }) {
 
   return (
     <div>
-      <Button render={<Link href="/snippets/new" />}>New Snippet</Button>
-      <select
+      <Button nativeButton={false} render={<Link href="/snippets/new" />}>New Snippet</Button>
+      <Select
         value={language}
-        onChange={(event) => setLanguage(event.target.value)}
+        onValueChange={(value) => value && setLanguage(value)}
       >
-        <option value="All">All</option>
-        <option value="JavaScript">JavaScript</option>
-        <option value="CSS">CSS</option>
-        <option value="TypeScript">TypeScript</option>
-      </select>
+        <SelectTrigger>
+          <SelectValue placeholder="Language" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="All">All</SelectItem>
+          <SelectItem value="JavaScript">JavaScript</SelectItem>
+          <SelectItem value="CSS">CSS</SelectItem>
+          <SelectItem value="TypeScript">TypeScript</SelectItem>
+        </SelectContent>
+      </Select>
       <div>
         {visibleSnippets.map((snippet) => (
           <Card key={snippet.id}>
