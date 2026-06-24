@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import FavoriteButton from "@/components/FavoriteButton";
+import CodeViewer from "@/components/CodeViewer";
 
 export async function generateStaticParams() {
   const snippets = await getAllSnippets();
@@ -45,9 +46,7 @@ export default async function SnippetDetailPage({
           <CardDescription>{snippet.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <pre className="overflow-x-auto rounded-md bg-muted p-4 text-sm">
-            <code>{snippet.code}</code>
-          </pre>
+          <CodeViewer code={snippet.code} language={snippet.language} />
         </CardContent>
       </Card>
     </main>
