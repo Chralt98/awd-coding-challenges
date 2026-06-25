@@ -76,6 +76,44 @@ app.post("/api/orders", (req, res) => {
   });
 });
 
+app.get("/api/orders/:id/stream", (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) {
+    res.status(404).end();
+    return;
+  }
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+
+  res.write("retry: 3000\n\n");
+
+  const heartbeat = setInterval(() => res.write(": keep-alive\n\n"), 15_000);
+
+  const send = () => {
+    res.write(`id: ${order.stage}\n`);
+    res.write(`data: ${JSON.stringify({ stage: order.stage })}\n\n`);
+
+    if (order.stage === "delivered") {
+      clearInterval(heartbeat);
+      order.events.off("progress", send);
+      res.end();
+    }
+  };
+
+  order.events.on("progress", send);
+  send();
+
+  req.on("close", () => {
+    clearInterval(heartbeat);
+    order.events.off("progress", send);
+  });
+});
+
 app.listen(3000, () =>
   console.log("Server running on port 3000: http://localhost:3000"),
 );

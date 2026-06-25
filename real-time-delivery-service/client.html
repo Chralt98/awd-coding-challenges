@@ -8,10 +8,12 @@
     <h1>Delivery Tracker</h1>
     <button id="create-short-polling-order">Create Short Polling Order</button>
     <button id="create-long-polling-order">Create Long Polling Order</button>
+    <button id="create-sse-order">Create SSE Order</button>
     <div id="order-info" hidden>
       <p>Order ID: <span id="order-id"></span></p>
       <p>Stage: <span id="order-stage"></span></p>
     </div>
+    <ul id="event-log"></ul>
 
     <script>
       const createShortPollingBtn = document.getElementById(
@@ -69,6 +71,38 @@
 
           if (stage === "delivered") break;
         }
+      }
+
+      const createSseBtn = document.getElementById("create-sse-order");
+      const eventLog = document.getElementById("event-log");
+
+      createSseBtn.addEventListener("click", async () => {
+        const res = await fetch("/api/orders", { method: "POST" });
+        const { id } = await res.json();
+
+        orderIdSpan.textContent = id;
+        orderInfo.hidden = false;
+        eventLog.innerHTML = "";
+
+        sseTracking(id);
+      });
+
+      function sseTracking(id) {
+        const source = new EventSource(`/api/orders/${id}/stream`);
+
+        source.addEventListener("message", (event) => {
+          const { stage } = JSON.parse(event.data);
+
+          orderStageSpan.textContent = stage;
+
+          const li = document.createElement("li");
+          li.textContent = `${new Date().toLocaleTimeString()} — ${stage}`;
+          eventLog.prepend(li);
+
+          if (stage === "delivered") {
+            source.close();
+          }
+        });
       }
     </script>
   </body>
