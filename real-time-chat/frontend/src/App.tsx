@@ -1,11 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "./assets/vite.svg";
+import heroImg from "./assets/hero.png";
+import "./App.css";
+import { io } from "socket.io-client";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const socket = io("http://localhost:3000");
+
+  useEffect(() => {
+    socket.connect();
+
+    const onResults = (data: Record<string, number>) => {
+      console.log("Received results:", data);
+      // TODO: set state to update the UI with the new results
+    };
+    socket.on("results", onResults);
+
+    return () => {
+      socket.off("results", onResults);
+      socket.disconnect();
+    };
+  }, [socket]);
 
   return (
     <>
@@ -27,6 +44,14 @@ function App() {
           onClick={() => setCount((count) => count + 1)}
         >
           Count is {count}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            socket.emit("vote", "pizza");
+          }}
+        >
+          Emit Vote Pizza
         </button>
       </section>
 
@@ -116,7 +141,7 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
