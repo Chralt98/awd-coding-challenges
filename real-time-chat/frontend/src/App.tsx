@@ -11,10 +11,11 @@ function App() {
   const [count, setCount] = useState(0);
   const [results, setResults] = useState<Record<string, number>>({});
   const pollId = "poll1";
+  const [connected, setConnected] = useState(socket.connected);
 
   useEffect(() => {
     socket.connect();
-    socket.emit("joinPoll", pollId);
+    // socket.emit("joinPoll", pollId);
 
     const onResults = (data: Record<string, number>) => {
       setResults(data);
@@ -30,6 +31,22 @@ function App() {
   const voteWithoutRoom = (option: string) => socket.emit("vote", option);
   const voteWithRoom = (option: string) =>
     socket.emit("voteWithRoom", { pollId, option });
+
+  useEffect(() => {
+    const onConnect = () => {
+      setConnected(true);
+      socket.emit("joinPoll", pollId);
+    };
+    const onDisconnect = () => setConnected(false);
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, [pollId]);
 
   return (
     <>
@@ -58,6 +75,7 @@ function App() {
         <button type="button" onClick={() => voteWithRoom("pasta")}>
           Emit vote for pasta with room
         </button>
+        <span>{connected ? "Connected" : "Connecting..."}</span>
         <pre>{JSON.stringify(results, null, 2)}</pre>
       </section>
 

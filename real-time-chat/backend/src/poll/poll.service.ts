@@ -14,4 +14,8 @@ export class PollService {
     this.tallies[roomKey] = (this.tallies[roomKey] ?? 0) + 1;
     return this.tallies;
   }
+
+  getResults() {
+    return this.tallies;
+  }
 }

@@ -27,6 +27,7 @@ export class PollGateway {
     @ConnectedSocket() socket: Socket,
   ) {
     await socket.join(pollId);
+    this.server.to(pollId).emit('results', this.pollService.getResults());
   }
 
   @SubscribeMessage('voteWithRoom')
