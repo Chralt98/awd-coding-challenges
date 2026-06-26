@@ -101,7 +101,6 @@ app.get("/api/orders/:id/stream", (req, res) => {
     if (order.stage === "delivered") {
       clearInterval(heartbeat);
       order.events.off("progress", send);
-      res.end();
     }
   };
 

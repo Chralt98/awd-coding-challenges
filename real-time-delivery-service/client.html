@@ -12,6 +12,7 @@
     <div id="order-info" hidden>
       <p>Order ID: <span id="order-id"></span></p>
       <p>Stage: <span id="order-stage"></span></p>
+      <p>Connection: <span id="connection-state"></span></p>
     </div>
     <ul id="event-log"></ul>
 
@@ -87,8 +88,22 @@
         sseTracking(id);
       });
 
+      const connectionState = document.getElementById("connection-state");
+
       function sseTracking(id) {
         const source = new EventSource(`/api/orders/${id}/stream`);
+
+        source.addEventListener("open", () => {
+          connectionState.textContent = "Live";
+        });
+
+        source.addEventListener("error", () => {
+          if (source.readyState === EventSource.CONNECTING) {
+            connectionState.textContent = "Reconnecting";
+          } else if (source.readyState === EventSource.CLOSED) {
+            connectionState.textContent = "Offline";
+          }
+        });
 
         source.addEventListener("message", (event) => {
           const { stage } = JSON.parse(event.data);
@@ -101,6 +116,7 @@
 
           if (stage === "delivered") {
             source.close();
+            connectionState.textContent = "Offline";
           }
         });
       }
