@@ -10,7 +10,7 @@ import { PollService } from './poll.service';
 @WebSocketGateway({ cors: { origin: '*' } })
 export class PollGateway {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   constructor(private readonly pollService: PollService) {}
 
