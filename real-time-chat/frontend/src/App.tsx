@@ -4,6 +4,7 @@ import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
 import "./App.css";
 import { io } from "socket.io-client";
+import { usePollStore } from "./stores/usePollStore";
 
 const socket = io("http://localhost:3000", { autoConnect: false });
 
@@ -12,6 +13,15 @@ function App() {
   const [results, setResults] = useState<Record<string, number>>({});
   const pollId = "poll1";
   const [connected, setConnected] = useState(socket.connected);
+
+  const resultsFromStore = usePollStore((state) => state.results);
+  const connectedFromStore = usePollStore((state) => state.connected);
+  const joinPollFromStore = usePollStore((state) => state.joinPoll);
+  const voteFromStore = usePollStore((state) => state.vote);
+
+  useEffect(() => {
+    joinPollFromStore(pollId);
+  }, [joinPollFromStore, pollId]);
 
   useEffect(() => {
     socket.connect();
@@ -75,8 +85,20 @@ function App() {
         <button type="button" onClick={() => voteWithRoom("pasta")}>
           Emit vote for pasta with room
         </button>
+
         <span>{connected ? "Connected" : "Connecting..."}</span>
+
         <pre>{JSON.stringify(results, null, 2)}</pre>
+
+        <button type="button" onClick={() => voteFromStore("doner")}>
+          Emit vote with store for doner with room
+        </button>
+        <span>
+          {connectedFromStore
+            ? "Connected from store"
+            : "Connecting from store..."}
+        </span>
+        <pre>{JSON.stringify(resultsFromStore, null, 2)}</pre>
       </section>
 
       <div className="ticks"></div>
