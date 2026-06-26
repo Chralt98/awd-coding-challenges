@@ -5,16 +5,19 @@ import heroImg from "./assets/hero.png";
 import "./App.css";
 import { io } from "socket.io-client";
 
+const socket = io("http://localhost:3000", { autoConnect: false });
+
 function App() {
   const [count, setCount] = useState(0);
-  const socket = io("http://localhost:3000");
+  const [results, setResults] = useState<Record<string, number>>({});
+  const pollId = "poll1";
 
   useEffect(() => {
     socket.connect();
+    socket.emit("joinPoll", pollId);
 
     const onResults = (data: Record<string, number>) => {
-      console.log("Received results:", data);
-      // TODO: set state to update the UI with the new results
+      setResults(data);
     };
     socket.on("results", onResults);
 
@@ -22,7 +25,11 @@ function App() {
       socket.off("results", onResults);
       socket.disconnect();
     };
-  }, [socket]);
+  }, []);
+
+  const voteWithoutRoom = (option: string) => socket.emit("vote", option);
+  const voteWithRoom = (option: string) =>
+    socket.emit("voteWithRoom", { pollId, option });
 
   return (
     <>
@@ -45,14 +52,13 @@ function App() {
         >
           Count is {count}
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            socket.emit("vote", "pizza");
-          }}
-        >
-          Emit Vote Pizza
+        <button type="button" onClick={() => voteWithoutRoom("pizza")}>
+          Emit vote for pizza without room
         </button>
+        <button type="button" onClick={() => voteWithRoom("pasta")}>
+          Emit vote for pasta with room
+        </button>
+        <pre>{JSON.stringify(results, null, 2)}</pre>
       </section>
 
       <div className="ticks"></div>

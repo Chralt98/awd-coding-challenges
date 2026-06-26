@@ -8,4 +8,10 @@ export class PollService {
     this.tallies[option] = (this.tallies[option] ?? 0) + 1;
     return this.tallies;
   }
+
+  addVoteWithRoom(pollId: string, option: string) {
+    const roomKey = `${pollId}:${option}`;
+    this.tallies[roomKey] = (this.tallies[roomKey] ?? 0) + 1;
+    return this.tallies;
+  }
 }

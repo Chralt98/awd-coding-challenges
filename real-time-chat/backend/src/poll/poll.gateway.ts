@@ -3,8 +3,9 @@ import {
   WebSocketServer,
   SubscribeMessage,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { PollService } from './poll.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -18,5 +19,19 @@ export class PollGateway {
   handleVote(@MessageBody() option: string) {
     const results = this.pollService.addVote(option);
     this.server.emit('results', results);
+  }
+
+  @SubscribeMessage('joinPoll')
+  async handleJoin(
+    @MessageBody() pollId: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    await socket.join(pollId);
+  }
+
+  @SubscribeMessage('voteWithRoom')
+  handleVoteWithRoom(@MessageBody() data: { pollId: string; option: string }) {
+    const results = this.pollService.addVoteWithRoom(data.pollId, data.option);
+    this.server.to(data.pollId).emit('results', results);
   }
 }
