@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import useLocalStorageState from "use-local-storage-state";
 import { sendChat, type Message } from "../actions";
 import ChatView from "./Chat";
 
@@ -27,7 +28,9 @@ function deriveTitle(content: string): string {
 }
 
 export default function ChatApp() {
-  const [chats, setChats] = useState<Chat[]>(() => [createChat()]);
+  const [chats, setChats] = useLocalStorageState<Chat[]>("chats", {
+    defaultValue: [createChat()],
+  });
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
   // Falls back to the first chat when nothing has been explicitly selected.
