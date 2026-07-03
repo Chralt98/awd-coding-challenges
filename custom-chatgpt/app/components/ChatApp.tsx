@@ -20,6 +20,12 @@ function createChat(): Chat {
   };
 }
 
+function deriveTitle(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed) return NEW_CHAT_TITLE;
+  return trimmed.length > 40 ? `${trimmed.slice(0, 40)}...` : trimmed;
+}
+
 export default function ChatApp() {
   const [chats, setChats] = useState<Chat[]>(() => [createChat()]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -45,7 +51,7 @@ export default function ChatApp() {
 
     updateChat(chatId, (chat) => ({
       ...chat,
-      title: chat.title,
+      title: chat.messages.length === 0 ? deriveTitle(content) : chat.title,
       messages: updatedMessages,
     }));
 
