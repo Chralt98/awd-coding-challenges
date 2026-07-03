@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import useLocalStorageState from "use-local-storage-state";
-import { sendChat, type Message } from "../actions";
+import { streamChat, type Message } from "../actions";
 import ChatView from "./Chat";
 
 type Chat = {
@@ -58,11 +58,23 @@ export default function ChatApp() {
       messages: updatedMessages,
     }));
 
-    const assistantMessage = await sendChat(updatedMessages);
-    updateChat(chatId, (chat) => ({
-      ...chat,
-      messages: [...updatedMessages, assistantMessage],
-    }));
+    const stream = await streamChat(updatedMessages);
+    const reader = stream.getReader();
+    let assistantText = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      assistantText += value;
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: assistantText,
+      };
+      updateChat(chatId, (chat) => ({
+        ...chat,
+        messages: [...updatedMessages, assistantMessage],
+      }));
+    }
   }
 
   return (

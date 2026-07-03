@@ -5,7 +5,7 @@ export type Message = {
   content: string;
 };
 
-export async function sendChat(
+export async function streamChat(
   messages: Message[],
 ): Promise<ReadableStream<string>> {
   const openaiResponse = await fetch(
