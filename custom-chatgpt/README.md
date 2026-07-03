@@ -20,6 +20,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+#### Custom ChatGPT - Chat function and basic UI
+
+Build a single working chat that holds a conversation.
+
+- Set up a new Next.js project.
+- Add your API key to `.env.local` as `OPENAI_API_KEY`.
+- Create a server function that takes a `messages` array, calls the OpenAI API with `fetch`, and returns `choices[0].message`.
+- Build a client component with state for the message list and the input field.
+- On submit, append the new user message, pass the whole `messages` array to your server function, and append the returned assistant message to the list.
+- Render the conversation by mapping over the messages, showing the `role` and `content` of each.
+
+#### Custom ChatGPT - Multiple chats with a sidebar
+
+Let the user keep several conversations and switch between them.
+
+- Model the app state as a list of chats, where each chat has an `id`, a `title`, and its own `messages` array.
+- Add a sidebar that lists every chat and a button to start a new, empty one.
+- Clicking a chat in the sidebar makes it the active chat and shows its messages in the window.
+- Derive each chat’s title from its first user message so the sidebar is readable.
+- Persist the full list of chats in `localStorage` and load it on startup, so chats survive a page refresh. You can use the package `useLocalStorageState` for this.
+
+#### Custom ChatGPT - Stream the replies
+
+Replace the wait-for-everything reply with a live, word-by-word one.
+
+- Add `stream: true` to the request body in your streaming server function.
+- In that function, read OpenAI’s SSE stream, pull `delta.content` out of each `data:` line, skip the `[DONE]` marker, and return the tokens as a `ReadableStream`.
+- On the client, add an empty assistant message before reading the stream, then read the returned stream chunk by chunk.
+- Append each chunk to the running reply and update state on every chunk so the text grows on screen.
+- Make sure the finished assistant message ends up saved in the active chat, so it persists like the rest.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
