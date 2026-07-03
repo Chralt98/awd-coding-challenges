@@ -13,7 +13,8 @@ http:
         "model": "gpt-4o-mini",
         "messages": [
           { "role": "user", "content": "Explain what an API is in one sentence." },
-          { "role": "assistant", "content": "An API, or Application Programming Interface, is a set of rules and protocols that allows different software applications to communicate and interact with each other." }
+          { "role": "assistant", "content": "An API, or Application Programming Interface, is a set of rules and protocols that allows different software applications to communicate and interact with each other." },
+          { "role": "user", "content": "Thanks, I understand now!"}
         ]
       }
   auth:
