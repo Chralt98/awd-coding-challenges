@@ -23,5 +23,21 @@ function createChat(): Chat {
 export default function ChatApp() {
   const [chats, setChats] = useState<Chat[]>(() => [createChat()]);
 
-  return <div className="flex h-screen w-full"></div>;
+  function handleNewChat() {
+    const chat = createChat();
+    setChats((prev) => [chat, ...prev]);
+  }
+
+  return (
+    <div className="flex h-screen w-full">
+      <aside className="flex w-64 flex-col gap-2">
+        <button onClick={handleNewChat}>+ New chat</button>
+        <ul className="flex flex-col gap-1 overflow-y-auto">
+          {chats.map((chat) => (
+            <li key={chat.id}>{chat.title}</li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  );
 }
