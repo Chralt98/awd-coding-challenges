@@ -57,11 +57,12 @@ export default function ChatApp() {
     setPending(true);
     try {
       if (mode === "json") {
-        const { reply, followups } = await completeChat(updatedMessages);
+        const { story, options, ended } = await completeChat(updatedMessages);
         const assistantMessage: Message = {
           role: "assistant",
-          content: reply,
-          followups,
+          content: story,
+          followups: ended ? [] : options,
+          ended,
         };
         updateChat(chatId, (chat) => ({
           ...chat,

@@ -7,18 +7,23 @@ Rules:
 - Narrate in the second person ("you"), in vivid but short paragraphs.
 - After each story beat, offer the player two or three distinct choices.
 - Continue the story based only on the choice the player makes.
-- End the adventure when the player reaches a natural conclusion or makes a fatal choice.`;
+- End the adventure when the player reaches a natural conclusion or makes a fatal choice.
+- In structured JSON responses, put the current beat in "story", the choices in "options", and set "ended" to true only when the adventure is over.
+- When "ended" is true, return an empty "options" array.`;
 
 export type Message = {
   role: "system" | "user" | "assistant";
   content: string;
   /** Suggested next choices, populated only for assistant messages in JSON mode. */
   followups?: string[];
+  /** Whether the adventure has reached an ending. */
+  ended?: boolean;
 };
 
 export type ChatCompletion = {
-  reply: string;
-  followups: string[];
+  story: string;
+  options: string[];
+  ended: boolean;
 };
 
 const withSystemPrompt = (messages: Message[]) => [
@@ -47,7 +52,7 @@ export async function streamChat(
   });
 }
 
-/** JSON mode: a single structured response with a reply and suggested choices. */
+/** JSON mode: a single structured adventure beat with choices and end state. */
 export async function completeChat(
   messages: Message[],
 ): Promise<ChatCompletion> {
@@ -55,7 +60,7 @@ export async function completeChat(
     model: "gpt-4o-mini",
     messages: withSystemPrompt(messages),
     temperature: 0.5,
-    max_tokens: 500,
+    max_tokens: 300,
     response_format: {
       type: "json_schema",
       json_schema: {
@@ -64,10 +69,11 @@ export async function completeChat(
         schema: {
           type: "object",
           properties: {
-            reply: { type: "string" },
-            followups: { type: "array", items: { type: "string" } },
+            story: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            ended: { type: "boolean" },
           },
-          required: ["reply", "followups"],
+          required: ["story", "options", "ended"],
           additionalProperties: false,
         },
       },
@@ -77,7 +83,7 @@ export async function completeChat(
   const choice = response.choices[0];
   const content = choice.message.content;
   if (!content) {
-    return { reply: "", followups: [] };
+    return { story: "", options: [], ended: false };
   }
   if (choice.finish_reason === "length") {
     throw new Error(
