@@ -79,6 +79,16 @@ export default function Adventure() {
     }
   }
 
+  async function handleRestart() {
+    setMessages([]);
+    setBeat(null);
+    setOpeningPrompt("");
+    setPromptSubmitted(false);
+    await handleStart();
+  }
+
+  const isEnded = beat !== null && (beat.ended || beat.options.length === 0);
+
   return (
     <div className="flex w-full max-w-2xl flex-col gap-4 p-4">
       {storyId === null ? (
@@ -111,21 +121,30 @@ export default function Adventure() {
           <p className="rounded-lg border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
             {beat ? beat.story : "Generating the opening scene…"}
           </p>
-          {beat && beat.options.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {beat.options.map((option, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => handleOptionClick(option)}
-                  disabled={sending}
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          )}
+          {beat &&
+            (isEnded ? (
+              <button
+                onClick={handleRestart}
+                disabled={starting}
+                className="self-start rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              >
+                {starting ? "Starting…" : "Start new adventure"}
+              </button>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {beat.options.map((option, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleOptionClick(option)}
+                    disabled={sending}
+                    className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            ))}
         </div>
       )}
     </div>
