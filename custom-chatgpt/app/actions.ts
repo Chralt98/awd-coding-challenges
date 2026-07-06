@@ -1,10 +1,35 @@
 "use server";
 
 import openai from "../lib/openai";
-import { createStory, appendMessage, Story } from "../lib/stories";
+import {
+  createStory,
+  appendMessage,
+  getStoryMessages,
+  listStories,
+  updateStoryTitle as updateStoryTitleDb,
+  type Story,
+} from "../lib/stories";
 
 export async function startAdventure(): Promise<Story> {
   return await createStory("New adventure");
+}
+
+export async function listAdventures(): Promise<Story[]> {
+  return listStories();
+}
+
+export async function updateStoryTitle(
+  storyId: number,
+  title: string,
+): Promise<void> {
+  await updateStoryTitleDb(storyId, title);
+}
+
+export async function loadAdventureMessages(
+  storyId: number,
+): Promise<Message[]> {
+  const stored = await getStoryMessages(storyId);
+  return stored.map(({ role, content }) => ({ role, content }));
 }
 
 export async function saveMessage(
@@ -44,28 +69,7 @@ const withSystemPrompt = (messages: Message[]) => [
   ...messages,
 ];
 
-/** Streaming mode: yields plain-text tokens as the model produces them. */
-export async function streamChat(
-  messages: Message[],
-): Promise<ReadableStream<string>> {
-  const stream = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: withSystemPrompt(messages),
-    stream: true,
-  });
-
-  return new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        const token = chunk.choices[0].delta.content ?? "";
-        controller.enqueue(token);
-      }
-      controller.close();
-    },
-  });
-}
-
-/** JSON mode: a single structured adventure beat with choices and end state. */
+/** Requests a single structured adventure beat with choices and end state. */
 export async function completeChat(
   messages: Message[],
 ): Promise<ChatCompletion> {

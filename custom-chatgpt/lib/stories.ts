@@ -55,3 +55,14 @@ export async function listStories(): Promise<Story[]> {
     ORDER BY created DESC
   `;
 }
+
+export async function updateStoryTitle(
+  storyId: number,
+  title: string,
+): Promise<void> {
+  await sql`
+    UPDATE stories
+    SET title = ${title}
+    WHERE id = ${storyId}
+  `;
+}

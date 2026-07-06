@@ -29,26 +29,25 @@ Tests run on **Vitest** (jsdom environment, globals enabled — config in `vites
 
 ## Never do
 
-- **Never import `lib/openai.ts` (or otherwise call the OpenAI client) from a `"use client"` component.** The client reads `OPENAI_API_KEY`; it must stay server-only, reached exclusively through the `"use server"` functions in `app/actions.ts`. Importing it into client code would leak the key into the browser bundle.
+- **Never import `lib/openai.ts` or `lib/stories.ts` (or otherwise call the OpenAI/DB clients) from a `"use client"` component.** The OpenAI client reads `OPENAI_API_KEY` and the DB client reads `DATABASE_URL`; both must stay server-only, reached exclusively through the `"use server"` functions in `app/actions.ts`. Importing them into client code would leak secrets into the browser bundle.
 
 ## Configuration
 
-- `OPENAI_API_KEY` must be set in `.env.local` (already gitignored). Next.js loads it automatically — there is no `dotenv`. It is read only in `lib/openai.ts`.
+- `OPENAI_API_KEY` and `DATABASE_URL` must be set in `.env.local` (already gitignored). Next.js loads it automatically — there is no `dotenv`. `OPENAI_API_KEY` is read only in `lib/openai.ts`; `DATABASE_URL` only in `lib/db.ts`.
+- **Postgres runs in Docker** (`docker-compose.yaml`): `docker compose up -d` before `npm run dev`. This project's container maps host port **5433** (5432/5431 are used by sibling projects). `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` also live in `.env.local` for the compose file.
 - `@/*` path alias maps to the project root (`tsconfig.json`).
 
 ## Architecture
 
-A single-page ChatGPT-style app built as a learning exercise (see `README.md` for the three progressive challenge stages: basic chat → multiple chats w/ sidebar → streaming). The whole UI lives at `app/page.tsx` → `ChatApp`.
+A single-page **choose-your-own-adventure** game (a text-adventure "game master"). The whole UI lives at `app/page.tsx` → `ChatApp`. State lives in the client; the model call and all persistence go through the `"use server"` boundary; adventures are stored in **Postgres**.
 
-**Two per-chat modes.** Each chat carries a `mode: ChatMode` (`"stream" | "json"`, defined in `lib/chat.ts`) chosen at creation via the selector next to "+ New chat". The mode decides which server action runs and how replies render:
-- **`stream`** — plain-text tokens streamed live (`streamChat`).
-- **`json`** — one structured `json_schema` response (`completeChat`) whose `followups` render as clickable choice buttons that send the chosen text as the next user message.
+**Persistence — two tables** (created idempotently at server boot by `instrumentation.ts`'s `register()`): `stories` (`id`, `title`, `created`) and `messages` (`id`, `story_id` FK `ON DELETE CASCADE`, `role`, `content`). Note `messages` stores only `role`/`content` — **not** the per-beat `options`/`ended`.
 
-**Data flow — client state, server-side model call, back to the client:**
+- `lib/openai.ts` / `lib/db.ts` — the single shared OpenAI SDK client and postgres.js `sql` client (both server-only).
+- `lib/stories.ts` — the server-only data-access layer: `createStory`, `appendMessage`, `getStoryMessages` (ordered by `id`), `listStories`, `updateStoryTitle`.
+- `app/actions.ts` — the **`"use server"`** boundary and the only thing the client talks to. `completeChat(messages)` prepends the game-master `systemPrompt` (via `withSystemPrompt`) and calls `gpt-4o-mini` **non-streaming** with a `json_schema` `response_format`, `JSON.parse`ing the reply into `{ story, options, ended }` (`ChatCompletion`). Thin wrappers over the DAL: `startAdventure`, `listAdventures`, `loadAdventureMessages`, `saveMessage`, `updateStoryTitle`. The `Message` type (`role`/`content` + optional `followups?`/`ended?`) and `Story` are defined/re-exported here.
+- `app/components/ChatApp.tsx` — **`"use client"`**, owns all state (`stories`, `activeStoryId`, `messages`, `pending`, `starting`). On mount it `listAdventures()` for the sidebar. `handleNewAdventure` → `startAdventure` (new story row). `handleSelectStory` → `loadAdventureMessages` (resume). `handleSend` (used by opening prompt, option clicks, and free text) optimistically appends the user message, derives+persists the story title on the first message (`deriveTitle` + `updateStoryTitle`), calls `completeChat`, appends the assistant `Message` (folding the beat's `story`/`options`/`ended` into `content`/`followups`/`ended`), and `saveMessage`s both to the DB.
+- `app/components/Chat.tsx` — presentational: renders the transcript, the current beat's `options` as clickable buttons (**only on the last message**, via `followups`), a "Thinking…" pending bubble, and either the text input or — when `ended` — a "Start new adventure" button (`onNewAdventure`).
+- `lib/chat.ts` — the one piece of pure, unit-tested logic: `deriveTitle` (+ `TITLE_MAX_LENGTH`, `NEW_ADVENTURE_TITLE`).
 
-- `lib/openai.ts` — the single shared OpenAI SDK client (server-only; reads the API key).
-- `app/actions.ts` — the **`"use server"`** boundary. Both actions prepend the game-master `systemPrompt` (via `withSystemPrompt`) and call `openai.chat.completions.create` with model `gpt-4o-mini`. `streamChat(messages)` uses `stream: true` and adapts the SDK's async iterator into a **`ReadableStream<string>` of plain-text `delta.content` tokens**. `completeChat(messages)` is **non-streaming**, uses the `json_schema` `response_format`, and `JSON.parse`s the response into `{ reply, followups }` (returns empty values if content is null/refused). `Message` (with optional `followups?: string[]`) and `ChatCompletion` types are defined here.
-- `app/components/ChatApp.tsx` — **`"use client"`**, owns all state. Chats are a `Chat[]` (`{ id, title, mode, messages }`) persisted to `localStorage` under the key `"chats"` via `use-local-storage-state`. `activeChatId` is plain `useState` and falls back to the first chat. On send it optimistically appends the user message, derives the title from the first user message, then **branches on `activeChat.mode ?? DEFAULT_CHAT_MODE`**: streaming reads the `ReadableStream` chunk-by-chunk and `updateChat`s on every chunk; JSON awaits `completeChat` and appends one assistant message with `followups`. A `pending` flag drives a "Thinking…" placeholder (JSON mode has no live tokens) and disables input while a reply is in flight.
-- `app/components/Chat.tsx` — presentational: renders the message list, any assistant `followups` as clickable buttons (calling the same `onSend`), the pending placeholder, and the input form.
-
-**Migration note:** chats persisted before `mode` existed have `mode === undefined` at runtime, so consumers read it as `chat.mode ?? DEFAULT_CHAT_MODE` (`"stream"`). Keep that fallback when touching mode logic.
+**Known limitation:** because `options`/`ended` aren't persisted, a **resumed** adventure shows its last saved narration with the free-text input rather than the original option buttons (no live beat until the next turn). The empty-`options`/`ended` end state offers a new adventure instead of choices.

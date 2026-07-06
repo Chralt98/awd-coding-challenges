@@ -1,9 +1,5 @@
-import Adventure from "./components/Adventure";
+import ChatApp from "./components/ChatApp";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen justify-center">
-      <Adventure />
-    </main>
-  );
+  return <ChatApp />;
 }
