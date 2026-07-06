@@ -1,10 +1,18 @@
 "use server";
 
 import openai from "../lib/openai";
-import { createStory, Story } from "../lib/stories";
+import { createStory, appendMessage, Story } from "../lib/stories";
 
 export async function startAdventure(): Promise<Story> {
   return await createStory("New adventure");
+}
+
+export async function saveMessage(
+  storyId: number,
+  role: "user" | "assistant",
+  content: string,
+): Promise<void> {
+  await appendMessage(storyId, role, content);
 }
 
 const systemPrompt = `You are the game master of an interactive text adventure.

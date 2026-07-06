@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   startAdventure,
   completeChat,
+  saveMessage,
   type Message,
   type ChatCompletion,
 } from "../actions";
@@ -14,6 +15,7 @@ export default function Adventure() {
   const [starting, setStarting] = useState(false);
   const [promptSubmitted, setPromptSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [beat, setBeat] = useState<ChatCompletion | null>(null);
 
   async function handleStart() {
@@ -39,7 +41,39 @@ export default function Adventure() {
     try {
       const userMessage: Message = { role: "user", content: trimmed };
       const result = await completeChat([userMessage]);
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: result.story,
+        followups: result.options,
+        ended: result.ended,
+      };
+      setMessages([userMessage, assistantMessage]);
       setBeat(result);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handleOptionClick(option: string) {
+    if (sending || storyId === null) return;
+
+    setSending(true);
+    try {
+      const userMessage: Message = { role: "user", content: option };
+      const updatedMessages = [...messages, userMessage];
+      const result = await completeChat(updatedMessages);
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: result.story,
+        followups: result.options,
+        ended: result.ended,
+      };
+      setMessages([...updatedMessages, assistantMessage]);
+      setBeat(result);
+      await Promise.all([
+        saveMessage(storyId, "user", option),
+        saveMessage(storyId, "assistant", result.story),
+      ]);
     } finally {
       setSending(false);
     }
@@ -75,17 +109,17 @@ export default function Adventure() {
       ) : (
         <div className="flex flex-col gap-4">
           <p className="rounded-lg border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
-            {sending ? "Generating the opening scene…" : beat?.story}
+            {beat ? beat.story : "Generating the opening scene…"}
           </p>
           {beat && beat.options.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {beat.options.map((option, index) => (
-                // TODO (next step): on click, append this option as the next
-                // user message, request the next beat, and save both messages.
                 <button
                   key={index}
                   type="button"
-                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  onClick={() => handleOptionClick(option)}
+                  disabled={sending}
+                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
                 >
                   {option}
                 </button>
