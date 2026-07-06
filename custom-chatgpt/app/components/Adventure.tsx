@@ -73,11 +73,26 @@ export default function Adventure() {
           />
         </form>
       ) : (
-        // TODO (next step): render `beat.story` properly and each `beat.options`
-        // entry as a button.
-        <p className="text-zinc-900 dark:text-zinc-100">
-          {sending ? "Generating the opening scene…" : beat?.story}
-        </p>
+        <div className="flex flex-col gap-4">
+          <p className="rounded-lg border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
+            {sending ? "Generating the opening scene…" : beat?.story}
+          </p>
+          {beat && beat.options.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {beat.options.map((option, index) => (
+                // TODO (next step): on click, append this option as the next
+                // user message, request the next beat, and save both messages.
+                <button
+                  key={index}
+                  type="button"
+                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
