@@ -43,4 +43,13 @@ describe("createChat", () => {
     expect(a.id).toEqual(expect.any(String));
     expect(a.id).not.toBe(b.id);
   });
+
+  it("defaults to streaming mode", () => {
+    expect(createChat().mode).toBe("stream");
+  });
+
+  it("respects an explicitly requested mode", () => {
+    expect(createChat("json").mode).toBe("json");
+    expect(createChat("stream").mode).toBe("stream");
+  });
 });
