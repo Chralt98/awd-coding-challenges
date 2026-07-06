@@ -1,0 +1,20 @@
+import sql from "./lib/db";
+
+export async function register() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS stories (
+      id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      title text NOT NULL,
+      created timestamp NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS messages (
+      id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+      story_id integer NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+      role text NOT NULL,
+      content text NOT NULL
+    )
+  `;
+}
