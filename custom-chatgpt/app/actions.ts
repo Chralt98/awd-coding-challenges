@@ -21,8 +21,10 @@ export type ChatCompletion = {
   followups: string[];
 };
 
-const withSystemPrompt = (messages: Message[]) =>
-  [{ role: "system" as const, content: systemPrompt }, ...messages];
+const withSystemPrompt = (messages: Message[]) => [
+  { role: "system" as const, content: systemPrompt },
+  ...messages,
+];
 
 /** Streaming mode: yields plain-text tokens as the model produces them. */
 export async function streamChat(
@@ -52,6 +54,8 @@ export async function completeChat(
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: withSystemPrompt(messages),
+    temperature: 0.5,
+    max_tokens: 500,
     response_format: {
       type: "json_schema",
       json_schema: {
@@ -70,9 +74,15 @@ export async function completeChat(
     },
   });
 
-  const content = response.choices[0].message.content;
+  const choice = response.choices[0];
+  const content = choice.message.content;
   if (!content) {
     return { reply: "", followups: [] };
+  }
+  if (choice.finish_reason === "length") {
+    throw new Error(
+      "The model response was truncated before completing. Try raising max_tokens.",
+    );
   }
   return JSON.parse(content) as ChatCompletion;
 }
