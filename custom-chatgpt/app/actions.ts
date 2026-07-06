@@ -20,6 +20,22 @@ export async function streamChat(
   const stream = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [{ role: "system", content: systemPrompt }, ...messages],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "chat_response",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            reply: { type: "string" },
+            followups: { type: "array", items: { type: "string" } },
+          },
+          required: ["reply", "followups"],
+          additionalProperties: false,
+        },
+      },
+    },
     stream: true,
   });
 
