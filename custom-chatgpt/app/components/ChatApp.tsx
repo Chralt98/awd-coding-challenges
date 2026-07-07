@@ -20,6 +20,7 @@ export default function ChatApp() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [pending, setPending] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     listAdventures().then(setStories);
@@ -32,6 +33,7 @@ export default function ChatApp() {
   async function handleNewAdventure() {
     if (starting) return;
     setStarting(true);
+    setError(null);
     try {
       const story = await startAdventure();
       setStories((prev) => [story, ...prev]);
@@ -44,6 +46,7 @@ export default function ChatApp() {
 
   async function handleSelectStory(story: Story) {
     if (pending) return;
+    setError(null);
     setActiveStoryId(story.id);
     const loaded = await loadAdventureMessages(story.id);
     setMessages(loaded);
@@ -53,9 +56,11 @@ export default function ChatApp() {
     const trimmed = content.trim();
     if (!trimmed || pending || activeStoryId === null) return;
 
-    const isFirstMessage = messages.length === 0;
+    const previousMessages = messages;
+    const isFirstMessage = previousMessages.length === 0;
     const userMessage: Message = { role: "user", content: trimmed };
-    const updatedMessages = [...messages, userMessage];
+    const updatedMessages = [...previousMessages, userMessage];
+    setError(null);
     setMessages(updatedMessages);
 
     if (isFirstMessage) {
@@ -88,6 +93,13 @@ export default function ChatApp() {
           result.ended,
         ),
       ]);
+    } catch (err) {
+      setMessages(previousMessages);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setPending(false);
     }
@@ -128,6 +140,7 @@ export default function ChatApp() {
             pending={pending}
             ended={ended}
             onNewAdventure={handleNewAdventure}
+            error={error}
           />
         ) : (
           <div className="flex w-full max-w-2xl flex-col gap-4 p-4">

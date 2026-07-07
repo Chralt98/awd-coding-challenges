@@ -84,7 +84,7 @@ export async function completeChat(
     model: "gpt-4o-mini",
     messages: withSystemPrompt(messages),
     temperature: 0.5,
-    max_tokens: 300,
+    max_tokens: 800,
     response_format: {
       type: "json_schema",
       json_schema: {

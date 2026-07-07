@@ -10,6 +10,7 @@ type ChatProps = {
   pending?: boolean;
   ended?: boolean;
   onNewAdventure?: () => void;
+  error?: string | null;
 };
 
 export default function Chat({
@@ -18,6 +19,7 @@ export default function Chat({
   pending = false,
   ended = false,
   onNewAdventure,
+  error = null,
 }: ChatProps) {
   const [input, setInput] = useState("");
 
@@ -84,6 +86,11 @@ export default function Chat({
           </li>
         )}
       </ul>
+      {error && (
+        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+          {error} Please try again.
+        </p>
+      )}
       {ended ? (
         <button
           type="button"
