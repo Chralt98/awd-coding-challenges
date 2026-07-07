@@ -5,9 +5,9 @@ export const ADVENTURE_INTRO =
   "Welcome! This is an interactive text adventure — you'll make choices that shape how the story unfolds. Pick a story to begin, or type your own opening line below.";
 
 export const STORY_SUGGESTIONS = [
-  "You wake up in a dense, fog-covered forest with no memory of how you got there.",
-  "You're the captain of a starship that has just received a distress signal from a system everyone thought was dead.",
-  "You inherit a mysterious mansion from a relative you've never heard of.",
+  "You're a detective called to investigate a locked-room murder in a snowbound mountain lodge.",
+  "You discover a hidden door in your basement that leads to a city built beneath your own.",
+  "You're the last apprentice of a dying order of wizards, tasked with recovering a stolen relic before the world forgets magic entirely.",
 ];
 
 /** Derives a readable sidebar title from an adventure's opening prompt. */
