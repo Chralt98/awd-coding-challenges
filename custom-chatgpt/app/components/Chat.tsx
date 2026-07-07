@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { type Message } from "../actions";
+import { ADVENTURE_INTRO, STORY_SUGGESTIONS } from "../../lib/chat";
 
 type ChatProps = {
   messages: Message[];
@@ -30,6 +31,24 @@ export default function Chat({
   return (
     <div className="flex w-full max-w-2xl flex-col gap-4 p-4">
       <ul className="flex flex-col gap-3">
+        {messages.length === 0 && (
+          <li className="rounded-lg border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
+            <strong className="capitalize">Assistant:</strong> {ADVENTURE_INTRO}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {STORY_SUGGESTIONS.map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => !pending && onSend(suggestion)}
+                  disabled={pending}
+                  className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </li>
+        )}
         {messages.map((message, index) => {
           const isLast = index === messages.length - 1;
           return (
@@ -78,7 +97,11 @@ export default function Chat({
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Type a message…"
+            placeholder={
+              messages.length === 0
+                ? "Describe how your story begins…"
+                : "Type a message…"
+            }
             className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
           />
           <button

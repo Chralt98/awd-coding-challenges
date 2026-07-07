@@ -29,15 +29,22 @@ export async function loadAdventureMessages(
   storyId: number,
 ): Promise<Message[]> {
   const stored = await getStoryMessages(storyId);
-  return stored.map(({ role, content }) => ({ role, content }));
+  return stored.map(({ role, content, followups, ended }) => ({
+    role,
+    content,
+    followups: followups ?? undefined,
+    ended: ended ?? undefined,
+  }));
 }
 
 export async function saveMessage(
   storyId: number,
   role: "user" | "assistant",
   content: string,
+  followups?: string[],
+  ended?: boolean,
 ): Promise<void> {
-  await appendMessage(storyId, role, content);
+  await appendMessage(storyId, role, content, followups ?? null, ended ?? null);
 }
 
 const systemPrompt = `You are the game master of an interactive text adventure.

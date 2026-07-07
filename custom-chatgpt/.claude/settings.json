@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\(now | strftime(\"%Y-%m-%d %H:%M:%S\")): wrote \\(.tool_input.file_path)\"' >> \"${CLAUDE_PROJECT_DIR}/claude-edits.log\""
+          }
+        ]
+      }
+    ]
+  }
+}

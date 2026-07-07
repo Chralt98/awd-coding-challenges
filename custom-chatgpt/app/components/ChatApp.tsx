@@ -80,7 +80,13 @@ export default function ChatApp() {
       setMessages([...updatedMessages, assistantMessage]);
       await Promise.all([
         saveMessage(activeStoryId, "user", trimmed),
-        saveMessage(activeStoryId, "assistant", result.story),
+        saveMessage(
+          activeStoryId,
+          "assistant",
+          result.story,
+          result.options,
+          result.ended,
+        ),
       ]);
     } finally {
       setPending(false);

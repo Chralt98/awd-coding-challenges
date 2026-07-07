@@ -14,7 +14,12 @@ export async function register() {
       id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
       story_id integer NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
       role text NOT NULL,
-      content text NOT NULL
+      content text NOT NULL,
+      followups jsonb,
+      ended boolean
     )
   `;
+
+  await sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS followups jsonb`;
+  await sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS ended boolean`;
 }

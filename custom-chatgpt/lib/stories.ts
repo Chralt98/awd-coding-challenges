@@ -12,6 +12,8 @@ export type StoredMessage = {
   id: number;
   role: Role;
   content: string;
+  followups: string[] | null;
+  ended: boolean | null;
 };
 
 export async function createStory(title: string): Promise<Story> {
@@ -27,11 +29,13 @@ export async function appendMessage(
   storyId: number,
   role: Role,
   content: string,
+  followups: string[] | null = null,
+  ended: boolean | null = null,
 ): Promise<StoredMessage> {
   const [message] = await sql<StoredMessage[]>`
-    INSERT INTO messages (story_id, role, content)
-    VALUES (${storyId}, ${role}, ${content})
-    RETURNING id, role, content
+    INSERT INTO messages (story_id, role, content, followups, ended)
+    VALUES (${storyId}, ${role}, ${content}, ${followups ? sql.json(followups) : null}, ${ended})
+    RETURNING id, role, content, followups, ended
   `;
   return message;
 }
@@ -41,7 +45,7 @@ export async function getStoryMessages(
 ): Promise<StoredMessage[]> {
   // `id` is a monotonic identity column, so it doubles as insertion order.
   return sql<StoredMessage[]>`
-    SELECT id, role, content
+    SELECT id, role, content, followups, ended
     FROM messages
     WHERE story_id = ${storyId}
     ORDER BY id
