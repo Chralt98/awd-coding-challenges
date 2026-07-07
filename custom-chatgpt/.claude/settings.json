@@ -10,6 +10,17 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash(.*git commit)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm --prefix \"${CLAUDE_PROJECT_DIR}\" run lint"
+          }
+        ]
+      }
     ]
   }
 }
