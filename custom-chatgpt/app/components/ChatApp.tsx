@@ -8,9 +8,10 @@ import {
   completeChat,
   saveMessage,
   updateStoryTitle,
+  deleteAdventure,
   type Message,
 } from "../actions";
-import type { Story } from "../../lib/stories";
+import type { Story, Language } from "../../lib/stories";
 import { deriveTitle } from "../../lib/chat";
 import ChatView from "./Chat";
 
@@ -21,6 +22,10 @@ export default function ChatApp() {
   const [pending, setPending] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingLanguageChoice, setPendingLanguageChoice] = useState(false);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     listAdventures().then(setStories);
@@ -30,12 +35,13 @@ export default function ChatApp() {
   const lastMessage = messages[messages.length - 1];
   const ended = lastMessage?.role === "assistant" && lastMessage.ended === true;
 
-  async function handleNewAdventure() {
+  async function handleNewAdventure(language: Language) {
     if (starting) return;
     setStarting(true);
     setError(null);
+    setPendingLanguageChoice(false);
     try {
-      const story = await startAdventure();
+      const story = await startAdventure(language);
       setStories((prev) => [story, ...prev]);
       setActiveStoryId(story.id);
       setMessages([]);
@@ -47,9 +53,24 @@ export default function ChatApp() {
   async function handleSelectStory(story: Story) {
     if (pending) return;
     setError(null);
+    setConfirmingDeleteId(null);
     setActiveStoryId(story.id);
     const loaded = await loadAdventureMessages(story.id);
     setMessages(loaded);
+  }
+
+  async function handleDeleteStory(storyId: number) {
+    if (confirmingDeleteId !== storyId) {
+      setConfirmingDeleteId(storyId);
+      return;
+    }
+    setConfirmingDeleteId(null);
+    await deleteAdventure(storyId);
+    setStories((prev) => prev.filter((story) => story.id !== storyId));
+    if (activeStoryId === storyId) {
+      setActiveStoryId(null);
+      setMessages([]);
+    }
   }
 
   async function handleSend(content: string) {
@@ -75,7 +96,10 @@ export default function ChatApp() {
 
     setPending(true);
     try {
-      const result = await completeChat(updatedMessages);
+      const result = await completeChat(
+        updatedMessages,
+        activeStory?.language ?? "english",
+      );
       const assistantMessage: Message = {
         role: "assistant",
         content: result.story,
@@ -108,25 +132,60 @@ export default function ChatApp() {
   return (
     <div className="flex h-screen w-full">
       <aside className="flex w-64 flex-col gap-2 p-2">
-        <button
-          onClick={handleNewAdventure}
-          disabled={starting}
-          className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-        >
-          {starting ? "Starting…" : "+ New adventure"}
-        </button>
+        {pendingLanguageChoice ? (
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleNewAdventure("english")}
+              disabled={starting}
+              className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+            >
+              English
+            </button>
+            <button
+              onClick={() => handleNewAdventure("german")}
+              disabled={starting}
+              className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+            >
+              German
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setPendingLanguageChoice(true)}
+            disabled={starting}
+            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+          >
+            {starting ? "Starting…" : "+ New adventure"}
+          </button>
+        )}
         <ul className="flex flex-col gap-1 overflow-y-auto">
           {stories.map((story) => (
-            <li key={story.id}>
+            <li key={story.id} className="flex items-center gap-1">
               <button
                 onClick={() => handleSelectStory(story)}
-                className={`w-full truncate rounded-lg px-3 py-2 text-left text-sm ${
+                className={`flex-1 truncate rounded-lg px-3 py-2 text-left text-sm ${
                   story.id === activeStoryId
                     ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
                     : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
                 }`}
               >
                 {story.title}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteStory(story.id)}
+                aria-label={
+                  confirmingDeleteId === story.id
+                    ? "Confirm delete"
+                    : "Delete adventure"
+                }
+                className={
+                  confirmingDeleteId === story.id
+                    ? "shrink-0 rounded-lg px-2 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                    : "shrink-0 rounded-lg px-2 py-2 text-sm text-zinc-400 hover:bg-zinc-100 hover:text-red-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-red-400"
+                }
+              >
+                {confirmingDeleteId === story.id ? "Confirm?" : "×"}
               </button>
             </li>
           ))}
@@ -139,8 +198,9 @@ export default function ChatApp() {
             onSend={handleSend}
             pending={pending}
             ended={ended}
-            onNewAdventure={handleNewAdventure}
+            onNewAdventure={() => setPendingLanguageChoice(true)}
             error={error}
+            language={activeStory?.language}
           />
         ) : (
           <div className="flex w-full max-w-2xl flex-col gap-4 p-4">

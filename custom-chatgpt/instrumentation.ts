@@ -5,7 +5,8 @@ export async function register() {
     CREATE TABLE IF NOT EXISTS stories (
       id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
       title text NOT NULL,
-      created timestamp NOT NULL DEFAULT now()
+      created timestamp NOT NULL DEFAULT now(),
+      language text NOT NULL DEFAULT 'english'
     )
   `;
 
@@ -20,6 +21,7 @@ export async function register() {
     )
   `;
 
+  await sql`ALTER TABLE stories ADD COLUMN IF NOT EXISTS language text NOT NULL DEFAULT 'english'`;
   await sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS followups jsonb`;
   await sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS ended boolean`;
 }

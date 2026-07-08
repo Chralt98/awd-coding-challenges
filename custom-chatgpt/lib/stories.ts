@@ -1,9 +1,12 @@
 import sql from "./db";
 
+export type Language = "english" | "german";
+
 export type Story = {
   id: number;
   title: string;
   created: Date;
+  language: Language;
 };
 
 export type Role = "system" | "user" | "assistant";
@@ -16,11 +19,14 @@ export type StoredMessage = {
   ended: boolean | null;
 };
 
-export async function createStory(title: string): Promise<Story> {
+export async function createStory(
+  title: string,
+  language: Language,
+): Promise<Story> {
   const [story] = await sql<Story[]>`
-    INSERT INTO stories (title)
-    VALUES (${title})
-    RETURNING id, title, created
+    INSERT INTO stories (title, language)
+    VALUES (${title}, ${language})
+    RETURNING id, title, created, language
   `;
   return story;
 }
@@ -54,7 +60,7 @@ export async function getStoryMessages(
 
 export async function listStories(): Promise<Story[]> {
   return sql<Story[]>`
-    SELECT id, title, created
+    SELECT id, title, created, language
     FROM stories
     ORDER BY created DESC
   `;
@@ -67,6 +73,13 @@ export async function updateStoryTitle(
   await sql`
     UPDATE stories
     SET title = ${title}
+    WHERE id = ${storyId}
+  `;
+}
+
+export async function deleteStory(storyId: number): Promise<void> {
+  await sql`
+    DELETE FROM stories
     WHERE id = ${storyId}
   `;
 }

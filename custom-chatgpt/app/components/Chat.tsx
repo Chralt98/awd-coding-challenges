@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { type Message } from "../actions";
-import { ADVENTURE_INTRO, STORY_SUGGESTIONS } from "../../lib/chat";
+import { getAdventureIntro, getStorySuggestions } from "../../lib/chat";
+import type { Language } from "../../lib/stories";
 
 type ChatProps = {
   messages: Message[];
@@ -11,6 +12,7 @@ type ChatProps = {
   ended?: boolean;
   onNewAdventure?: () => void;
   error?: string | null;
+  language?: Language;
 };
 
 export default function Chat({
@@ -20,6 +22,7 @@ export default function Chat({
   ended = false,
   onNewAdventure,
   error = null,
+  language = "english",
 }: ChatProps) {
   const [input, setInput] = useState("");
 
@@ -35,9 +38,10 @@ export default function Chat({
       <ul className="flex flex-col gap-3">
         {messages.length === 0 && (
           <li className="rounded-lg border border-zinc-200 bg-white p-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
-            <strong className="capitalize">Assistant:</strong> {ADVENTURE_INTRO}
+            <strong className="capitalize">Assistant:</strong>{" "}
+            {getAdventureIntro(language)}
             <div className="mt-3 flex flex-wrap gap-2">
-              {STORY_SUGGESTIONS.map((suggestion, index) => (
+              {getStorySuggestions(language).map((suggestion, index) => (
                 <button
                   key={index}
                   type="button"
