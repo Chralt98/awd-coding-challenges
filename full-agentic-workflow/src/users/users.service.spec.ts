@@ -27,10 +27,15 @@ describe('UsersService', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  const dto: CreateUserDto = { email: 'user@example.com', password: 'password1' };
+  const dto: CreateUserDto = {
+    email: 'user@example.com',
+    password: 'password1',
+  };
 
   it('hashes the password before saving, never the plaintext', async () => {
-    mockUsersRepository.create.mockImplementation((entity: Partial<User>) => entity);
+    mockUsersRepository.create.mockImplementation(
+      (entity: Partial<User>) => entity,
+    );
     mockUsersRepository.save.mockImplementation((entity: User) =>
       Promise.resolve({ id: 'user-id', createdAt: new Date(), ...entity }),
     );
@@ -47,7 +52,9 @@ describe('UsersService', () => {
   });
 
   it('returns only the public fields, never the password hash', async () => {
-    mockUsersRepository.create.mockImplementation((entity: Partial<User>) => entity);
+    mockUsersRepository.create.mockImplementation(
+      (entity: Partial<User>) => entity,
+    );
     mockUsersRepository.save.mockImplementation((entity: User) =>
       Promise.resolve({ id: 'user-id', createdAt: new Date(), ...entity }),
     );
@@ -59,14 +66,18 @@ describe('UsersService', () => {
   });
 
   it('throws ConflictException when the email already exists (Postgres 23505)', async () => {
-    mockUsersRepository.create.mockImplementation((entity: Partial<User>) => entity);
+    mockUsersRepository.create.mockImplementation(
+      (entity: Partial<User>) => entity,
+    );
     mockUsersRepository.save.mockRejectedValue({ code: '23505' });
 
     await expect(service.create(dto)).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('rethrows errors unrelated to a duplicate email', async () => {
-    mockUsersRepository.create.mockImplementation((entity: Partial<User>) => entity);
+    mockUsersRepository.create.mockImplementation(
+      (entity: Partial<User>) => entity,
+    );
     const unrelatedError = new Error('connection lost');
     mockUsersRepository.save.mockRejectedValue(unrelatedError);
 
