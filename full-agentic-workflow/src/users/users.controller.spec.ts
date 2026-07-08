@@ -54,7 +54,7 @@ describe('UsersController (integration)', () => {
   });
 
   it('POST /register returns 201 with only id and email', async () => {
-    mockUsersRepository.save.mockImplementation((entity: User) =>
+    mockUsersRepository.save.mockImplementation((entity: Partial<User>) =>
       Promise.resolve({ id: 'user-id', createdAt: new Date(), ...entity }),
     );
 

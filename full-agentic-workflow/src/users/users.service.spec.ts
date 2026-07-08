@@ -36,7 +36,7 @@ describe('UsersService', () => {
     mockUsersRepository.create.mockImplementation(
       (entity: Partial<User>) => entity,
     );
-    mockUsersRepository.save.mockImplementation((entity: User) =>
+    mockUsersRepository.save.mockImplementation((entity: Partial<User>) =>
       Promise.resolve({ id: 'user-id', createdAt: new Date(), ...entity }),
     );
 
@@ -55,7 +55,7 @@ describe('UsersService', () => {
     mockUsersRepository.create.mockImplementation(
       (entity: Partial<User>) => entity,
     );
-    mockUsersRepository.save.mockImplementation((entity: User) =>
+    mockUsersRepository.save.mockImplementation((entity: Partial<User>) =>
       Promise.resolve({ id: 'user-id', createdAt: new Date(), ...entity }),
     );
 
