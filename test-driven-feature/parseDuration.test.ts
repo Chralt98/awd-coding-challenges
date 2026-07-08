@@ -18,6 +18,14 @@ describe("parseDuration", () => {
     expect(parseDuration("3m30s")).toBe(210_000);
   });
 
+  test("throws a descriptive error for an out-of-range seconds value", () => {
+    expect(() => parseDuration("1h30m78s")).toThrow(/invalid duration/i);
+  });
+
+  test("throws a descriptive error for an out-of-range minutes value", () => {
+    expect(() => parseDuration("1h67m30s")).toThrow(/invalid duration/i);
+  });
+
   test("throws a descriptive error for invalid input", () => {
     expect(() => parseDuration("not-a-duration")).toThrow(/invalid duration/i);
   });
