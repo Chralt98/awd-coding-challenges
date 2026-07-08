@@ -15,10 +15,12 @@ lockfile, its own `node_modules`. Always run commands from inside this directory
   the sibling `nest-js-cyber-chat` project.
 - **bcrypt** (the `bcrypt` npm package) for password hashing. Never store or log a plaintext
   password.
-- **Zod** for request validation instead of NestJS's usual `class-validator`/`class-transformer`
-  DTO pattern. Define a Zod schema per route and validate with a Zod-based `PipeTransform`
-  (e.g. `nestjs-zod`, or a small hand-rolled `ZodValidationPipe`) rather than decorated DTO
-  classes.
+- **class-validator** + **class-transformer** for request validation and response shaping — DTO
+  classes decorated with `class-validator` decorators (`@IsEmail`, `@IsString`, `@MinLength`,
+  etc.), enforced via a global `ValidationPipe` (`whitelist`, `forbidNonWhitelisted`,
+  `transform`); response DTOs decorated with `@Expose()`/`@Exclude()` and shaped via
+  `class-transformer`'s `plainToInstance` plus a global `ClassSerializerInterceptor` — this
+  matches the pattern used by the sibling `nest-js-cyber-chat` project.
 - **Vitest** for tests (`vitest run`, matching `nest-js-cyber-chat`'s setup — *not* Jest, which
   `real-time-chat/backend` uses instead).
 
@@ -48,10 +50,11 @@ The verification gate before considering a change done: `npm run lint && npm tes
 
 - Feature code lives under `src/<feature>/` following standard Nest module/controller/service
   layout (e.g. `src/users/`).
-- Request/response shapes are defined as Zod schemas (`z.object({...})`) colocated with the
-  feature (e.g. `src/users/register.schema.ts`), with TypeScript types inferred via `z.infer`.
-  Do not add `class-validator`/`class-transformer` DTO classes — Zod is the single validation
-  mechanism in this project.
+- Request/response DTOs are `class-validator`/`class-transformer`-decorated classes colocated
+  with the feature under `src/<feature>/dto/` (e.g. `src/users/dto/create-user.dto.ts`,
+  `src/users/dto/user-response.dto.ts`), enforced by the global `ValidationPipe` and
+  `ClassSerializerInterceptor` configured in `main.ts` — do not use Zod for validation in this
+  project.
 - Password hashing always goes through `bcrypt.hash` with a fixed, named salt-round constant
   (e.g. `SALT_ROUNDS = 12`) defined once and reused — never inline a magic number at each call
   site.
@@ -64,9 +67,9 @@ The verification gate before considering a change done: `npm run lint && npm tes
 
 Single endpoint to start: **`POST /register`**.
 
-- **Request body**: `{ email: string, password: string }`, validated by a Zod schema —
-  `email` must be a valid email string; `password` must meet a minimum length (e.g. 8
-  characters). Invalid input → `400 Bad Request` with the Zod validation errors.
+- **Request body**: `{ email: string, password: string }`, validated by a `CreateUserDto`
+  (`@IsEmail()` on `email`, `@IsString()` + `@MinLength(8)` on `password`) via the global
+  `ValidationPipe` — invalid input → `400 Bad Request`.
 - **Behavior**: hash `password` with `bcrypt` (never store or return the plaintext password),
   then persist a new user row (`id`, `email` unique, `password_hash`, `created_at`) via a
   TypeORM `User` entity/repository.
@@ -78,6 +81,4 @@ Single endpoint to start: **`POST /register`**.
 
 - **Never store or return a plaintext password.** Always hash with `bcrypt` before persisting,
   and never include `password`/`password_hash` in any API response or log line.
-- **Never add `class-validator`/`class-transformer` DTOs.** Validation in this project is Zod
-  schemas only — keep that consistent across every endpoint added later.
 - **Never commit `.env` or real database credentials.**
