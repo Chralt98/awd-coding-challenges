@@ -22,7 +22,9 @@ export default function ChatApp() {
   const [pending, setPending] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pendingLanguageChoice, setPendingLanguageChoice] = useState(false);
+  const [newAdventureOrigin, setNewAdventureOrigin] = useState<
+    "sidebar" | "chat" | null
+  >(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(
     null,
   );
@@ -39,7 +41,7 @@ export default function ChatApp() {
     if (starting) return;
     setStarting(true);
     setError(null);
-    setPendingLanguageChoice(false);
+    setNewAdventureOrigin(null);
     try {
       const story = await startAdventure(language);
       setStories((prev) => [story, ...prev]);
@@ -132,26 +134,31 @@ export default function ChatApp() {
   return (
     <div className="flex h-screen w-full">
       <aside className="flex w-64 flex-col gap-2 p-2">
-        {pendingLanguageChoice ? (
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleNewAdventure("english")}
-              disabled={starting}
-              className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-            >
-              English
-            </button>
-            <button
-              onClick={() => handleNewAdventure("german")}
-              disabled={starting}
-              className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-            >
-              German
-            </button>
+        {newAdventureOrigin === "sidebar" ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Choose a language:
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleNewAdventure("english")}
+                disabled={starting}
+                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+              >
+                English
+              </button>
+              <button
+                onClick={() => handleNewAdventure("german")}
+                disabled={starting}
+                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+              >
+                German
+              </button>
+            </div>
           </div>
         ) : (
           <button
-            onClick={() => setPendingLanguageChoice(true)}
+            onClick={() => setNewAdventureOrigin("sidebar")}
             disabled={starting}
             className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
           >
@@ -198,7 +205,9 @@ export default function ChatApp() {
             onSend={handleSend}
             pending={pending}
             ended={ended}
-            onNewAdventure={() => setPendingLanguageChoice(true)}
+            onNewAdventure={() => setNewAdventureOrigin("chat")}
+            pendingLanguageChoice={newAdventureOrigin === "chat"}
+            onChooseLanguage={handleNewAdventure}
             error={error}
             language={activeStory?.language}
           />

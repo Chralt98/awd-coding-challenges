@@ -11,6 +11,8 @@ type ChatProps = {
   pending?: boolean;
   ended?: boolean;
   onNewAdventure?: () => void;
+  pendingLanguageChoice?: boolean;
+  onChooseLanguage?: (language: Language) => void;
   error?: string | null;
   language?: Language;
 };
@@ -21,6 +23,8 @@ export default function Chat({
   pending = false,
   ended = false,
   onNewAdventure,
+  pendingLanguageChoice = false,
+  onChooseLanguage,
   error = null,
   language = "english",
 }: ChatProps) {
@@ -96,13 +100,37 @@ export default function Chat({
         </p>
       )}
       {ended ? (
-        <button
-          type="button"
-          onClick={onNewAdventure}
-          className="self-start rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
-          Start new adventure
-        </button>
+        pendingLanguageChoice ? (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Choose a language:
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => onChooseLanguage?.("english")}
+                className="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => onChooseLanguage?.("german")}
+                className="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+              >
+                German
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onNewAdventure}
+            className="self-start rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            Start new adventure
+          </button>
+        )
       ) : (
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
