@@ -2,20 +2,26 @@
 
 import { useEffect, useState } from "react";
 import {
+  getCurrentUser,
   startAdventure,
   listAdventures,
   loadAdventureMessages,
   completeChat,
-  saveMessage,
+  saveMessages,
   updateStoryTitle,
   deleteAdventure,
   type Message,
+  type PublicUser,
 } from "../actions";
 import type { Story, Language } from "../../lib/stories";
 import { deriveTitle } from "../../lib/chat";
 import ChatView from "./Chat";
+import UserMenu from "./UserMenu";
+import AuthForm from "./AuthForm";
 
 export default function ChatApp() {
+  const [user, setUser] = useState<PublicUser | null>(null);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [stories, setStories] = useState<Story[]>([]);
   const [activeStoryId, setActiveStoryId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,8 +36,26 @@ export default function ChatApp() {
   );
 
   useEffect(() => {
-    listAdventures().then(setStories);
+    getCurrentUser().then((currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        listAdventures().then(setStories);
+      }
+    });
   }, []);
+
+  function handleAuthSuccess(newUser: PublicUser) {
+    setUser(newUser);
+    listAdventures().then(setStories);
+  }
+
+  function handleLoggedOut() {
+    setUser(null);
+    setAuthMode("login");
+    setStories([]);
+    setActiveStoryId(null);
+    setMessages([]);
+  }
 
   const activeStory = stories.find((story) => story.id === activeStoryId);
   const lastMessage = messages[messages.length - 1];
@@ -109,16 +133,7 @@ export default function ChatApp() {
         ended: result.ended,
       };
       setMessages([...updatedMessages, assistantMessage]);
-      await Promise.all([
-        saveMessage(activeStoryId, "user", trimmed),
-        saveMessage(
-          activeStoryId,
-          "assistant",
-          result.story,
-          result.options,
-          result.ended,
-        ),
-      ]);
+      await saveMessages(activeStoryId, trimmed, result);
     } catch (err) {
       setMessages(previousMessages);
       setError(
@@ -133,70 +148,99 @@ export default function ChatApp() {
 
   return (
     <div className="flex h-screen w-full">
-      <aside className="flex w-64 flex-col gap-2 p-2">
-        {newAdventureOrigin === "sidebar" ? (
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Choose a language:
-            </p>
-            <div className="flex gap-2">
+      <aside className="flex w-64 flex-col p-2">
+        {user ? (
+          <>
+            {newAdventureOrigin === "sidebar" ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Choose a language:
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleNewAdventure("english")}
+                    disabled={starting}
+                    className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => handleNewAdventure("german")}
+                    disabled={starting}
+                    className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                  >
+                    German
+                  </button>
+                </div>
+              </div>
+            ) : (
               <button
-                onClick={() => handleNewAdventure("english")}
+                onClick={() => setNewAdventureOrigin("sidebar")}
                 disabled={starting}
-                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                className="mb-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
               >
-                English
+                {starting ? "Starting…" : "+ New adventure"}
               </button>
-              <button
-                onClick={() => handleNewAdventure("german")}
-                disabled={starting}
-                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-              >
-                German
-              </button>
-            </div>
-          </div>
+            )}
+            <ul className="flex flex-1 flex-col gap-1 overflow-y-auto">
+              {stories.map((story) => (
+                <li key={story.id} className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleSelectStory(story)}
+                    className={`flex-1 truncate rounded-lg px-3 py-2 text-left text-sm ${
+                      story.id === activeStoryId
+                        ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                        : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                    }`}
+                  >
+                    {story.title}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStory(story.id)}
+                    aria-label={
+                      confirmingDeleteId === story.id
+                        ? "Confirm delete"
+                        : "Delete adventure"
+                    }
+                    className={
+                      confirmingDeleteId === story.id
+                        ? "shrink-0 rounded-lg px-2 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                        : "shrink-0 rounded-lg px-2 py-2 text-sm text-zinc-400 hover:bg-zinc-100 hover:text-red-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-red-400"
+                    }
+                  >
+                    {confirmingDeleteId === story.id ? "Confirm?" : "×"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         ) : (
-          <button
-            onClick={() => setNewAdventureOrigin("sidebar")}
-            disabled={starting}
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-          >
-            {starting ? "Starting…" : "+ New adventure"}
-          </button>
+          <div className="flex flex-1 flex-col items-center justify-center gap-4">
+            <AuthForm mode={authMode} onSuccess={handleAuthSuccess} />
+            <button
+              type="button"
+              onClick={() =>
+                setAuthMode((mode) => (mode === "login" ? "signup" : "login"))
+              }
+              className="text-xs text-zinc-500 underline-offset-2 hover:underline dark:text-zinc-400"
+            >
+              {authMode === "login"
+                ? "Need an account? Sign up"
+                : "Already have an account? Log in"}
+            </button>
+          </div>
         )}
-        <ul className="flex flex-col gap-1 overflow-y-auto">
-          {stories.map((story) => (
-            <li key={story.id} className="flex items-center gap-1">
-              <button
-                onClick={() => handleSelectStory(story)}
-                className={`flex-1 truncate rounded-lg px-3 py-2 text-left text-sm ${
-                  story.id === activeStoryId
-                    ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
-                }`}
-              >
-                {story.title}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteStory(story.id)}
-                aria-label={
-                  confirmingDeleteId === story.id
-                    ? "Confirm delete"
-                    : "Delete adventure"
-                }
-                className={
-                  confirmingDeleteId === story.id
-                    ? "shrink-0 rounded-lg px-2 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
-                    : "shrink-0 rounded-lg px-2 py-2 text-sm text-zinc-400 hover:bg-zinc-100 hover:text-red-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-red-400"
-                }
-              >
-                {confirmingDeleteId === story.id ? "Confirm?" : "×"}
-              </button>
-            </li>
-          ))}
-        </ul>
+        {user && (
+          <div className="mt-auto">
+            <UserMenu
+              user={user}
+              onLoginClick={() => setAuthMode("login")}
+              onSignupClick={() => setAuthMode("signup")}
+              onLoggedOut={handleLoggedOut}
+            />
+          </div>
+        )}
       </aside>
       <main className="flex flex-1 justify-center overflow-y-auto">
         {activeStory ? (
@@ -214,7 +258,9 @@ export default function ChatApp() {
         ) : (
           <div className="flex w-full max-w-2xl flex-col gap-4 p-4">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Start a new adventure or pick one from the sidebar.
+              {user
+                ? "Start a new adventure or pick one from the sidebar."
+                : "Log in or sign up to start an adventure."}
             </p>
           </div>
         )}

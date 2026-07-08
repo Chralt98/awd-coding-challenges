@@ -2,6 +2,21 @@
 
 import openai from "../lib/openai";
 import {
+  hashPassword,
+  verifyPassword,
+  setSessionCookie,
+  clearSessionCookie,
+  getCurrentUserId,
+  MIN_PASSWORD_LENGTH,
+} from "../lib/auth";
+import {
+  createUser,
+  getUserByEmail,
+  getUserById,
+  DuplicateEmailError,
+  type User,
+} from "../lib/users";
+import {
   createStory,
   appendMessage,
   getStoryMessages,
@@ -12,29 +27,111 @@ import {
   type Language,
 } from "../lib/stories";
 
+export type PublicUser = {
+  id: number;
+  email: string;
+};
+
+function toPublicUser(user: User): PublicUser {
+  return { id: user.id, email: user.email };
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
+
+export async function registerUser(
+  email: string,
+  password: string,
+): Promise<PublicUser> {
+  if (!EMAIL_PATTERN.test(email)) {
+    throw new Error("Please enter a valid email address.");
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(
+      `Password must be at least ${MIN_PASSWORD_LENGTH} characters long.`,
+    );
+  }
+
+  const passwordHash = await hashPassword(password);
+  let user: User;
+  try {
+    user = await createUser(email, passwordHash);
+  } catch (err) {
+    if (err instanceof DuplicateEmailError) {
+      throw new Error("An account with this email already exists.");
+    }
+    throw err;
+  }
+
+  await setSessionCookie(user.id);
+  return toPublicUser(user);
+}
+
+export async function loginUser(
+  email: string,
+  password: string,
+): Promise<PublicUser> {
+  const user = await getUserByEmail(email);
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
+    throw new Error(INVALID_CREDENTIALS_MESSAGE);
+  }
+
+  await setSessionCookie(user.id);
+  return toPublicUser(user);
+}
+
+export async function logoutUser(): Promise<void> {
+  await clearSessionCookie();
+}
+
+export async function getCurrentUser(): Promise<PublicUser | null> {
+  const userId = await getCurrentUserId();
+  if (userId === null) return null;
+  const user = await getUserById(userId);
+  return user ? toPublicUser(user) : null;
+}
+
+class UnauthorizedError extends Error {
+  constructor() {
+    super("You must be logged in to do that.");
+    this.name = "UnauthorizedError";
+  }
+}
+
+async function requireUserId(): Promise<number> {
+  const userId = await getCurrentUserId();
+  if (userId === null) throw new UnauthorizedError();
+  return userId;
+}
+
 export async function startAdventure(language: Language): Promise<Story> {
-  return await createStory("New adventure", language);
+  const userId = await requireUserId();
+  return await createStory("New adventure", language, userId);
 }
 
 export async function listAdventures(): Promise<Story[]> {
-  return listStories();
+  const userId = await requireUserId();
+  return listStories(userId);
 }
 
 export async function updateStoryTitle(
   storyId: number,
   title: string,
 ): Promise<void> {
-  await updateStoryTitleDb(storyId, title);
+  const userId = await requireUserId();
+  await updateStoryTitleDb(storyId, title, userId);
 }
 
 export async function deleteAdventure(storyId: number): Promise<void> {
-  await deleteStory(storyId);
+  const userId = await requireUserId();
+  await deleteStory(storyId, userId);
 }
 
 export async function loadAdventureMessages(
   storyId: number,
 ): Promise<Message[]> {
-  const stored = await getStoryMessages(storyId);
+  const userId = await requireUserId();
+  const stored = await getStoryMessages(storyId, userId);
   return stored.map(({ role, content, followups, ended }) => ({
     role,
     content,
@@ -43,14 +140,22 @@ export async function loadAdventureMessages(
   }));
 }
 
-export async function saveMessage(
+/** Persists a user turn and the resulting assistant beat in a single action call. */
+export async function saveMessages(
   storyId: number,
-  role: "user" | "assistant",
-  content: string,
-  followups?: string[],
-  ended?: boolean,
+  userContent: string,
+  completion: ChatCompletion,
 ): Promise<void> {
-  await appendMessage(storyId, role, content, followups ?? null, ended ?? null);
+  const userId = await requireUserId();
+  await appendMessage(storyId, "user", userContent, null, null, userId);
+  await appendMessage(
+    storyId,
+    "assistant",
+    completion.story,
+    completion.options,
+    completion.ended,
+    userId,
+  );
 }
 
 const languageNames: Record<Language, string> = {
