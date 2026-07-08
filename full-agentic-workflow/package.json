@@ -48,5 +48,10 @@
     "typescript-eslint": "^8.20.0",
     "unplugin-swc": "^1.5.9",
     "vitest": "^4.1.8"
+  },
+  "allowScripts": {
+    "@swc/core@1.15.43": true,
+    "bcrypt@6.0.0": true,
+    "fsevents@2.3.3": true
   }
 }
