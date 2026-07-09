@@ -17,10 +17,14 @@ vi.mock("../actions", () => ({
 }));
 
 import {
+  completeChat,
   getCurrentUser,
   listAdventures,
+  loadAdventureMessages,
   loginUser,
   logoutUser,
+  saveMessages,
+  updateStoryTitle,
 } from "../actions";
 import ChatApp from "./ChatApp";
 
@@ -85,6 +89,42 @@ describe("ChatApp, logout", () => {
 
     expect(logoutUser).toHaveBeenCalled();
     expect(await screen.findByLabelText(/email/i)).toBeInTheDocument();
+  });
+});
+
+describe("ChatApp, first message title update", () => {
+  it("rolls back the optimistic sidebar title when persisting it fails", async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue(loggedInUser);
+    vi.mocked(listAdventures).mockResolvedValue([
+      {
+        id: 1,
+        title: "New adventure",
+        created: new Date(),
+        language: "english",
+      },
+    ]);
+    vi.mocked(loadAdventureMessages).mockResolvedValue([]);
+    vi.mocked(updateStoryTitle).mockRejectedValue(
+      new Error("Could not save title."),
+    );
+
+    render(<ChatApp />);
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "New adventure" }),
+    );
+    await userEvent.type(
+      await screen.findByPlaceholderText("Describe how your story begins…"),
+      "A lighthouse keeper finds a brass key",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(await screen.findByText(/Could not save title\./)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "New adventure" }),
+    ).toBeInTheDocument();
+    expect(completeChat).not.toHaveBeenCalled();
+    expect(saveMessages).not.toHaveBeenCalled();
   });
 });
 

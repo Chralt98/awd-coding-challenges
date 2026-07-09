@@ -104,24 +104,29 @@ export default function ChatApp() {
     if (!trimmed || pending || activeStoryId === null) return;
 
     const previousMessages = messages;
+    const previousStories = stories;
     const isFirstMessage = previousMessages.length === 0;
+    const firstMessageTitle = isFirstMessage ? deriveTitle(trimmed) : null;
     const userMessage: Message = { role: "user", content: trimmed };
     const updatedMessages = [...previousMessages, userMessage];
     setError(null);
     setMessages(updatedMessages);
 
-    if (isFirstMessage) {
-      const title = deriveTitle(trimmed);
+    if (firstMessageTitle) {
       setStories((prev) =>
         prev.map((story) =>
-          story.id === activeStoryId ? { ...story, title } : story,
+          story.id === activeStoryId
+            ? { ...story, title: firstMessageTitle }
+            : story,
         ),
       );
-      void updateStoryTitle(activeStoryId, title);
     }
 
     setPending(true);
     try {
+      if (firstMessageTitle) {
+        await updateStoryTitle(activeStoryId, firstMessageTitle);
+      }
       const result = await completeChat(
         updatedMessages,
         activeStory?.language ?? "english",
@@ -136,6 +141,7 @@ export default function ChatApp() {
       await saveMessages(activeStoryId, trimmed, result);
     } catch (err) {
       setMessages(previousMessages);
+      setStories(previousStories);
       setError(
         err instanceof Error
           ? err.message
